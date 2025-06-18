@@ -1,8 +1,8 @@
 local M = {}
-local _screenWidth
+local _minSize
 local function getButtonRects()
     local totalWidth = #Buttons * ButtonWidth + (#Buttons - 1) * ButtonPadding
-    local startX = (_screenWidth - totalWidth) / 2
+    local startX = (_minSize - totalWidth) / 2
     local rects = {}
     for i, btn in ipairs(Buttons) do
         local x = startX + (i - 1) * (ButtonWidth + ButtonPadding)
@@ -11,8 +11,8 @@ local function getButtonRects()
     return rects
 end
 
-function M.DrawButtons(screenWidth)
-    _screenWidth = screenWidth
+function M.DrawButtons(minSize)
+    _minSize = minSize
     local rects = getButtonRects()
     for i, rect in ipairs(rects) do
         if Buttons[i] == CurrentMode then

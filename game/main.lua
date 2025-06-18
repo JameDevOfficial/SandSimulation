@@ -116,5 +116,5 @@ end
 drawGrid(true)
 function love.draw()
     drawGrid()
-    button.DrawButtons(screenWidth)
+    button.DrawButtons(minSize)
 end
