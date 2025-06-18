@@ -1,8 +1,10 @@
 local lib = require("lib")
 
-local gridFactor = 100
-local padding = 1
-local waitTime = 0.01
+local gridFactor = 200
+local padding = 0.
+local waitTime = 0.0
+local cursorSize = 31
+local cursorRadius = (cursorSize - 1) / 2
 
 local grid = {}
 local screenWidth, screenHeight, minSize
@@ -22,7 +24,7 @@ local drawGrid = function(emptyAll)
             local drawX = (x - 1) * (cellSize.x + padding) + padding
             local drawY = (y - 1) * (cellSize.y + padding) + padding
             if grid[y][x] == "sand" then
-                love.graphics.setColor(250/255, 220/255, 137/255)
+                love.graphics.setColor(250 / 255, 220 / 255, 137 / 255)
             else
                 love.graphics.setColor(1, 1, 1)
             end
@@ -38,8 +40,18 @@ local sandCalculation = function()
     for y = gridFactor - 1, 1, -1 do
         for x = 1, gridFactor do
             if grid[y][x] == "sand" and grid[y + 1][x] == "empty" then
-                grid[y+1][x] = "sand"
+                grid[y + 1][x] = "sand"
                 grid[y][x] = "empty"
+            end
+            if grid[y][x] == "sand" and grid[y+1][x] == "sand" then
+                if grid[y + 1][x + 1] == "empty" then
+                    grid[y][x] = "empty"
+                    grid[y + 1][x + 1] = "sand"
+                end
+                if grid[y+1][x-1] == "empty" then
+                    grid[y][x] = "empty"
+                    grid[y + 1][x-1] = "sand"
+                end
             end
         end
     end
@@ -90,9 +102,18 @@ function love.update(dt)
     sandCalculation()
     if love.mouse.isDown(1) then
         local mx, my = love.mouse.getPosition()
-        local y, x = getGridElementAtCursor(mx, my)
-        if y and x then
-            grid[y][x] = "sand"
+        local cy, cx = getGridElementAtCursor(mx, my)
+        if cy and cx then
+            for dy = -cursorRadius, cursorRadius do
+                for dx = -cursorRadius, cursorRadius do
+                    if dx * dx + dy * dy <= cursorRadius * cursorRadius then
+                        local ny, nx = cy + dy, cx + dx
+                        if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
+                            grid[ny][nx] = "sand"
+                        end
+                    end
+                end
+            end
         end
     end
     lib.wait(waitTime)
