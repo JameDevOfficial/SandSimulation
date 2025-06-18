@@ -1,10 +1,21 @@
-local lib = require("lib")
+local lib = require("game.libs.lib")
+local button = require("game.libs.button")
 
+--Config Drawing
 local gridFactor = 200
 local padding = 0.
 local waitTime = 0.0
-local cursorSize = 31
+local cursorSize = 5
 local cursorRadius = (cursorSize - 1) / 2
+
+--Config Mode
+CurrentMode = "sand"
+Buttons = { "empty", "sand" }
+
+ButtonPadding = 10
+ButtonHeight = 30
+ButtonWidth = 100
+ButtonY = 10
 
 local grid = {}
 local screenWidth, screenHeight, minSize
@@ -57,24 +68,6 @@ local sandCalculation = function()
     end
 end
 
---[[
-function love.mousepressed(x, y, button)
-    if button ~= 1 then
-        return
-    end
-    for row = 1, gridFactor do
-        for col = 1, gridFactor do
-            local cellX = (col - 1) * (cellSize.x + padding) + padding
-            local cellY = (row - 1) * (cellSize.y + padding) + padding
-            if x >= cellX and x <= cellX + cellSize.x and y >= cellY and y <= cellY + cellSize.y then
-                grid[row][col] = "sand"
-                print("set ("..row.."|"..col..") to sand")
-            end
-        end
-    end
-end
-]]
-
 function love.resize()
     screenWidth, screenHeight = love.graphics.getDimensions()
     minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
@@ -103,13 +96,14 @@ function love.update(dt)
     if love.mouse.isDown(1) then
         local mx, my = love.mouse.getPosition()
         local cy, cx = getGridElementAtCursor(mx, my)
+        --Draw in Cursor Radius
         if cy and cx then
             for dy = -cursorRadius, cursorRadius do
                 for dx = -cursorRadius, cursorRadius do
                     if dx * dx + dy * dy <= cursorRadius * cursorRadius then
                         local ny, nx = cy + dy, cx + dx
                         if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
-                            grid[ny][nx] = "sand"
+                            grid[ny][nx] = CurrentMode
                         end
                     end
                 end
@@ -122,4 +116,5 @@ end
 drawGrid(true)
 function love.draw()
     drawGrid()
+    button.DrawButtons(screenWidth)
 end
