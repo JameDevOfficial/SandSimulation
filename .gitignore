@@ -1,5 +1,3 @@
-*
-!.gitignore
-!main.lua
-!LICENSE
-!README.md
+.vscode
+bin
+make_all.toml
