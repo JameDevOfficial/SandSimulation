@@ -79,6 +79,9 @@ local function drawAtCursor()
     local mx, my = love.mouse.getPosition()
     local cy, cx = getGridElementAtCursor(mx, my)
     --Draw in Cursor Radius
+    if mx > minSize or mx < 0 or my > minSize or my < 0 then
+        return
+    end
     if not cy and cx then return end
     for dy = -cursorRadius, cursorRadius do
         for dx = -cursorRadius, cursorRadius do
