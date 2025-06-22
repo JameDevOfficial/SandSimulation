@@ -1,8 +1,10 @@
 local lib = require("game.libs.lib")
 local button = require("game.libs.button")
+local time = require("os")
+local debug = require("game.libs.debug")
 
 --Config Drawing
-local gridFactor = 200
+local gridFactor = 100
 local padding = 0.
 local waitTime = 0.0
 local cursorSize = 5
@@ -10,7 +12,7 @@ local cursorRadius = (cursorSize - 1) / 2
 
 --Config Mode
 CurrentMode = "sand"
-Buttons = { "empty", "sand" }
+Buttons = { "empty", "sand", "water" }
 
 ButtonPadding = 10
 ButtonHeight = 30
@@ -36,6 +38,8 @@ local drawGrid = function(emptyAll)
             local drawY = (y - 1) * (cellSize.y + padding) + padding
             if grid[y][x] == "sand" then
                 love.graphics.setColor(250 / 255, 220 / 255, 137 / 255)
+            elseif grid[y][x] == "water" then
+                love.graphics.setColor(84 / 255, 151 / 255, 240 / 255)
             else
                 love.graphics.setColor(1, 1, 1)
             end
@@ -50,16 +54,16 @@ end
 local sandCalculation = function()
     for y = gridFactor - 1, 1, -1 do
         for x = 1, gridFactor do
-            if grid[y][x] == "sand" and grid[y + 1][x] == "empty" then
+            if grid[y][x] == "sand" and grid[y + 1][x] == "empty" then --sand floating
                 grid[y + 1][x] = "sand"
                 grid[y][x] = "empty"
             end
-            if grid[y][x] == "sand" and grid[y+1][x] == "sand" then
-                if grid[y + 1][x + 1] == "empty" then
+            if grid[y][x] == "sand" and grid[y+1][x] == "sand" then --double sand stack 
+                if grid[y + 1][x + 1] == "empty" then   --diagonal right
                     grid[y][x] = "empty"
                     grid[y + 1][x + 1] = "sand"
                 end
-                if grid[y+1][x-1] == "empty" then
+                if grid[y+1][x-1] == "empty" then       --diagonal left
                     grid[y][x] = "empty"
                     grid[y + 1][x-1] = "sand"
                 end
@@ -97,14 +101,13 @@ function love.update(dt)
         local mx, my = love.mouse.getPosition()
         local cy, cx = getGridElementAtCursor(mx, my)
         --Draw in Cursor Radius
-        if cy and cx then
-            for dy = -cursorRadius, cursorRadius do
-                for dx = -cursorRadius, cursorRadius do
-                    if dx * dx + dy * dy <= cursorRadius * cursorRadius then
-                        local ny, nx = cy + dy, cx + dx
-                        if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
-                            grid[ny][nx] = CurrentMode
-                        end
+        if not cy and cx then return end
+        for dy = -cursorRadius, cursorRadius do
+            for dx = -cursorRadius, cursorRadius do
+                if dx * dx + dy * dy <= cursorRadius * cursorRadius then
+                    local ny, nx = cy + dy, cx + dx
+                    if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
+                        grid[ny][nx] = CurrentMode
                     end
                 end
             end
@@ -113,8 +116,13 @@ function love.update(dt)
     lib.wait(waitTime)
 end
 
+function love.keypressed(k)
+    debug.keypressed(k, gridFactor, grid)
+end
+
 drawGrid(true)
 function love.draw()
     drawGrid()
     button.DrawButtons(minSize)
 end
+
