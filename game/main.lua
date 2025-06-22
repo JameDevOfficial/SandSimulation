@@ -2,6 +2,7 @@ local lib = require("game.libs.lib")
 local button = require("game.libs.button")
 local time = require("os")
 local debug = require("game.libs.debug")
+local sand = require("game.libs.sand")
 
 --Config Drawing
 local gridFactor = 100
@@ -51,27 +52,6 @@ local drawGrid = function(emptyAll)
     end
 end
 
-local sandCalculation = function()
-    for y = gridFactor - 1, 1, -1 do
-        for x = 1, gridFactor do
-            if grid[y][x] == "sand" and grid[y + 1][x] == "empty" then --sand floating
-                grid[y + 1][x] = "sand"
-                grid[y][x] = "empty"
-            end
-            if grid[y][x] == "sand" and grid[y+1][x] == "sand" then --double sand stack 
-                if grid[y + 1][x + 1] == "empty" then   --diagonal right
-                    grid[y][x] = "empty"
-                    grid[y + 1][x + 1] = "sand"
-                end
-                if grid[y+1][x-1] == "empty" then       --diagonal left
-                    grid[y][x] = "empty"
-                    grid[y + 1][x-1] = "sand"
-                end
-            end
-        end
-    end
-end
-
 function love.resize()
     screenWidth, screenHeight = love.graphics.getDimensions()
     minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
@@ -95,23 +75,27 @@ local function getGridElementAtCursor(mx, my)
     end
 end
 
-function love.update(dt)
-    sandCalculation()
-    if love.mouse.isDown(1) then
-        local mx, my = love.mouse.getPosition()
-        local cy, cx = getGridElementAtCursor(mx, my)
-        --Draw in Cursor Radius
-        if not cy and cx then return end
-        for dy = -cursorRadius, cursorRadius do
-            for dx = -cursorRadius, cursorRadius do
-                if dx * dx + dy * dy <= cursorRadius * cursorRadius then
-                    local ny, nx = cy + dy, cx + dx
-                    if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
-                        grid[ny][nx] = CurrentMode
-                    end
+local function drawAtCursor()
+    local mx, my = love.mouse.getPosition()
+    local cy, cx = getGridElementAtCursor(mx, my)
+    --Draw in Cursor Radius
+    if not cy and cx then return end
+    for dy = -cursorRadius, cursorRadius do
+        for dx = -cursorRadius, cursorRadius do
+            if dx * dx + dy * dy <= cursorRadius * cursorRadius then
+                local ny, nx = cy + dy, cx + dx
+                if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
+                    grid[ny][nx] = CurrentMode
                 end
             end
         end
+    end
+end
+
+function love.update(dt)
+    sand.sandCalculation(grid, gridFactor)
+    if love.mouse.isDown(1) then
+        drawAtCursor()
     end
     lib.wait(waitTime)
 end
