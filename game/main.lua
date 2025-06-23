@@ -102,6 +102,7 @@ local function drawAtCursor()
                 local ny, nx = cy + dy, cx + dx
                 if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                     Grid[ny] = Grid[ny] or {}
+                    if Grid[ny][nx] ~= "empty" then return end
                     Grid[ny][nx] = CurrentMode
                 end
             end
@@ -110,8 +111,8 @@ local function drawAtCursor()
 end
 
 function love.update(dt)
-    print(dt)
     if IsPaused then return end
+    print(dt)
     ResetMovementGrid()
     for y = GridFactor - 1, 1, -1 do
         for x = 1, GridFactor do
