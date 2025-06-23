@@ -3,15 +3,20 @@ local element = "water"
 local replaceElements = { "empty" }
 local waterDirections = {}
 
+function M.clearDirections()
+    waterDirections = {}
+end
+
 function M.waterCalculation(grid, gridFactor, x, y)
     if grid[y][x] ~= element then return end
 
     for i, v in ipairs(replaceElements) do
-        if y<gridFactor and grid[y + 1][x] == v then -- floating
+        if y < gridFactor and grid[y + 1][x] == v then
             grid[y + 1][x] = element
             grid[y][x] = v
             waterDirections[x..","..(y+1)] = waterDirections[x..","..y] or "r"
-            waterDirections[x..","..y] = nil
+            waterDirections[x .. "," .. y] = nil
+            print("move down")
             return
         end
 
@@ -23,7 +28,7 @@ function M.waterCalculation(grid, gridFactor, x, y)
             moved = true
             waterDirections[(x+1)..","..y] = dir
             print("move right")
-        elseif dir == "l" and x>1 and grid[y][x - 1] == v then
+        elseif dir == "l" and x > 1 and grid[y][x - 1] == v then
             grid[y][x - 1] = element
             grid[y][x] = v
             moved = true
@@ -32,11 +37,11 @@ function M.waterCalculation(grid, gridFactor, x, y)
         end
 
         if moved then
-           waterDirections[x..","..y] = nil
+            waterDirections[x..","..y] = nil
         else
-            if dir == "r" and (x >= gridFactor or (x < gridFactor and grid[y][x+1] ~= v)) then
+            if dir == "r" then
                 waterDirections[x..","..y] = "l"
-            elseif dir == "l" and (x == 1 or grid[y][x-1] ~= v) then
+            else
                 waterDirections[x..","..y] = "r"
             end
         end

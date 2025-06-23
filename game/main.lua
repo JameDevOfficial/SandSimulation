@@ -9,7 +9,7 @@ local water = require("game.elements.water")
 --Config Drawing
 local gridFactor = 100
 local padding = 0.
-local waitTime = 0.1
+local waitTime = 1
 local cursorSize = 1
 local cursorRadius = (cursorSize - 1) / 2
 
@@ -22,6 +22,7 @@ ButtonHeight = 30
 ButtonWidth = 100
 ButtonY = 10
 
+IsPaused = false
 local grid = {}
 local screenWidth, screenHeight, minSize
 
@@ -98,12 +99,19 @@ local function drawAtCursor()
 end
 
 function love.update(dt)
+    if IsPaused then return end
     for y = gridFactor - 1, 1, -1 do
         for x = 1, gridFactor do
             sand.sandCalculation(grid, gridFactor, x, y)
+        end
+    end
+
+    for y = gridFactor, 1, -1 do
+        for x = 1, gridFactor do
             water.waterCalculation(grid, gridFactor, x, y)
         end
     end
+
     if love.mouse.isDown(1) then
         drawAtCursor()
     end
