@@ -7,10 +7,10 @@ local water = require("game.elements.water")
 
 
 --Config Drawing
-local gridFactor = 100
+GridFactor = 100
 local padding = 0.
-local waitTime = 1
-local cursorSize = 1
+local waitTime = 0
+local cursorSize = 5
 local cursorRadius = (cursorSize - 1) / 2
 
 --Config Mode
@@ -23,33 +23,43 @@ ButtonWidth = 100
 ButtonY = 10
 
 IsPaused = false
-local grid = {}
+Grid = {}
+MovedGrid = {}
 local screenWidth, screenHeight, minSize
 
 screenWidth, screenHeight = love.graphics.getDimensions()
 minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
 local cellSize = {
-    x = ((minSize - padding * (gridFactor + 1)) / gridFactor),
-    y = ((minSize - padding * (gridFactor + 1)) / gridFactor)
+    x = ((minSize - padding * (GridFactor + 1)) / GridFactor),
+    y = ((minSize - padding * (GridFactor + 1)) / GridFactor)
 }
 
+ResetMovementGrid = function()
+    for y = 1, GridFactor do
+        MovedGrid[y] = {}
+        for x = 1, GridFactor do
+            MovedGrid[y][x] = 0
+        end
+    end
+end
+
 local drawGrid = function(emptyAll)
-    for y = 1, gridFactor do
-        grid[y] = grid[y] or {}
-        for x = 1, gridFactor do
-            grid[y][x] = grid[y][x] or "empty"
+    for y = 1, GridFactor do
+        Grid[y] = Grid[y] or {}
+        for x = 1, GridFactor do
+            Grid[y][x] = Grid[y][x] or "empty"
             local drawX = (x - 1) * (cellSize.x + padding) + padding
             local drawY = (y - 1) * (cellSize.y + padding) + padding
-            if grid[y][x] == "sand" then
+            if Grid[y][x] == "sand" then
                 love.graphics.setColor(250 / 255, 220 / 255, 137 / 255)
-            elseif grid[y][x] == "water" then
+            elseif Grid[y][x] == "water" then
                 love.graphics.setColor(84 / 255, 151 / 255, 240 / 255)
             else
                 love.graphics.setColor(1, 1, 1)
             end
             love.graphics.rectangle("fill", drawX, drawY, cellSize.x, cellSize.y)
             if emptyAll == true then
-                grid[y][x] = "empty"
+                Grid[y][x] = "empty"
             end
         end
     end
@@ -59,15 +69,15 @@ function love.resize()
     screenWidth, screenHeight = love.graphics.getDimensions()
     minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
     cellSize = {
-        x = ((minSize - padding * (gridFactor + 1)) / gridFactor),
-        y = ((minSize - padding * (gridFactor + 1)) / gridFactor)
+        x = ((minSize - padding * (GridFactor + 1)) / GridFactor),
+        y = ((minSize - padding * (GridFactor + 1)) / GridFactor)
     }
     drawGrid()
 end
 
 local function getGridElementAtCursor(mx, my)
-    for y = 1, gridFactor+1 do
-        for x = 1, gridFactor+1 do
+    for y = 1, GridFactor+1 do
+        for x = 1, GridFactor+1 do
             local cellX = (x - 1) * (cellSize.x + padding) + padding
             local cellY = (y - 1) * (cellSize.y + padding) + padding
             if mx >= cellX and mx <= cellX + cellSize.x and my >= cellY and my <= cellY + cellSize.y then
@@ -90,8 +100,9 @@ local function drawAtCursor()
         for dx = -cursorRadius, cursorRadius do
             if dx * dx + dy * dy <= cursorRadius * cursorRadius then
                 local ny, nx = cy + dy, cx + dx
-                if ny >= 1 and ny <= gridFactor and nx >= 1 and nx <= gridFactor then
-                    grid[ny][nx] = CurrentMode
+                if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
+                    Grid[ny] = Grid[ny] or {}
+                    Grid[ny][nx] = CurrentMode
                 end
             end
         end
@@ -99,16 +110,18 @@ local function drawAtCursor()
 end
 
 function love.update(dt)
+    print(dt)
     if IsPaused then return end
-    for y = gridFactor - 1, 1, -1 do
-        for x = 1, gridFactor do
-            sand.sandCalculation(grid, gridFactor, x, y)
+    ResetMovementGrid()
+    for y = GridFactor - 1, 1, -1 do
+        for x = 1, GridFactor do
+            sand.sandCalculation(x, y)
         end
     end
 
-    for y = gridFactor, 1, -1 do
-        for x = 1, gridFactor do
-            water.waterCalculation(grid, gridFactor, x, y)
+    for y = GridFactor, 1, -1 do
+        for x = 1, GridFactor do
+            water.waterCalculation(x, y)
         end
     end
 
@@ -119,7 +132,7 @@ function love.update(dt)
 end
 
 function love.keypressed(k)
-    debug.keypressed(k, gridFactor, grid)
+    debug.keypressed(k, GridFactor, Grid)
 end
 
 drawGrid(true)
