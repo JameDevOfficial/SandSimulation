@@ -7,7 +7,7 @@ function M.waterCalculation(grid, gridFactor, x, y)
     if grid[y][x] ~= element then return end
 
     for i, v in ipairs(replaceElements) do
-        if y<=gridFactor and grid[y + 1][x] == v then -- floating
+        if y<gridFactor and grid[y + 1][x] == v then -- floating
             grid[y + 1][x] = element
             grid[y][x] = v
             waterDirections[x..","..(y+1)] = waterDirections[x..","..y] or "r"
@@ -17,7 +17,7 @@ function M.waterCalculation(grid, gridFactor, x, y)
 
         local dir = waterDirections[x..","..y] or "r"
         local moved = false
-        if dir == "r" and grid[y][x + 1] == v and x <= gridFactor then
+        if dir == "r" and grid[y][x + 1] == v and x < gridFactor then
             grid[y][x + 1] = element
             grid[y][x] = v
             moved = true
@@ -32,7 +32,7 @@ function M.waterCalculation(grid, gridFactor, x, y)
         end
 
         if moved then
-           -- waterDirections[x..","..y] = nil
+           waterDirections[x..","..y] = nil
         else
             if dir == "r" and (x == gridFactor or grid[y][x+1] ~= v) then
                 waterDirections[x..","..y] = "l"
