@@ -2,13 +2,15 @@ local lib = require("game.libs.lib")
 local button = require("game.libs.button")
 local time = require("os")
 local debug = require("game.libs.debug")
-local sand = require("game.libs.sand")
+local sand = require("game.elements.sand")
+local water = require("game.elements.water")
+
 
 --Config Drawing
 local gridFactor = 100
 local padding = 0.
-local waitTime = 0.0
-local cursorSize = 5
+local waitTime = 0.5
+local cursorSize = 1
 local cursorRadius = (cursorSize - 1) / 2
 
 --Config Mode
@@ -96,7 +98,12 @@ local function drawAtCursor()
 end
 
 function love.update(dt)
-    sand.sandCalculation(grid, gridFactor)
+    for y = gridFactor - 1, 1, -1 do
+        for x = 1, gridFactor do
+            sand.sandCalculation(grid, gridFactor, x, y)
+            water.waterCalculation(grid, gridFactor, x, y)
+        end
+    end
     if love.mouse.isDown(1) then
         drawAtCursor()
     end
