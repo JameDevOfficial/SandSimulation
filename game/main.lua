@@ -9,7 +9,7 @@ local water = require("game.elements.water")
 --Config Drawing
 local gridFactor = 100
 local padding = 0.
-local waitTime = 0.5
+local waitTime = 0.1
 local cursorSize = 1
 local cursorRadius = (cursorSize - 1) / 2
 
@@ -65,8 +65,8 @@ function love.resize()
 end
 
 local function getGridElementAtCursor(mx, my)
-    for y = 1, gridFactor do
-        for x = 1, gridFactor do
+    for y = 1, gridFactor+1 do
+        for x = 1, gridFactor+1 do
             local cellX = (x - 1) * (cellSize.x + padding) + padding
             local cellY = (y - 1) * (cellSize.y + padding) + padding
             if mx >= cellX and mx <= cellX + cellSize.x and my >= cellY and my <= cellY + cellSize.y then

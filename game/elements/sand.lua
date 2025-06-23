@@ -11,11 +11,11 @@ function M.sandCalculation(grid, gridFactor, x, y)
         end
 
         if grid[y][x] == element and grid[y + 1][x] == element then --double sand stack
-            if grid[y + 1][x + 1] == "empty" then               --diagonal right
-                grid[y][x] = "empty"
+            if grid[y + 1][x + 1] == v then               --diagonal right
+                grid[y][x] = v
                 grid[y + 1][x + 1] = element
-            elseif grid[y + 1][x - 1] == "empty" then --diagonal left
-                grid[y][x] = "empty"
+            elseif grid[y + 1][x - 1] == v then --diagonal left
+                grid[y][x] = v
                 grid[y + 1][x - 1] = element
             end
         end
