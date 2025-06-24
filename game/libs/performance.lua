@@ -44,7 +44,7 @@ M.clearEntries = function ()
 end
 
 M.getFPS = function ()
-    local fps = math.floor(1.0 / love.timer.getDelta())
+    local fps = love.timer.getFPS()
     return fps
 end
 
