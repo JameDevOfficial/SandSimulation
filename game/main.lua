@@ -9,7 +9,7 @@ local textLabel = require("game.libs.ui.textLabel")
 local button = require("game.libs.ui.button")
 
 local BLACK = {0,0,0,1}
-local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Avg DT\n[F8] - Save Avg DT"
+local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
 --Config Drawing
 GridFactor = 100
