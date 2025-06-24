@@ -9,7 +9,7 @@ local textLabel = require("game.libs.ui.textLabel")
 local button = require("game.libs.ui.button")
 
 local BLACK = {0,0,0,1}
-
+local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Avg DT\n[F8] - Save Avg DT"
 
 --Config Drawing
 GridFactor = 100
@@ -86,7 +86,6 @@ local function getGridElementAtCursor(mx, my)
             local cellX = (x - 1) * (cellSize.x + padding) + padding
             local cellY = (y - 1) * (cellSize.y + padding) + padding
             if mx >= cellX and mx <= cellX + cellSize.x and my >= cellY and my <= cellY + cellSize.y then
-                print("(" .. y .. "|" .. x .. ")")
                 return y, x
             end
         end
@@ -118,7 +117,6 @@ end
 function love.update(dt)
     if IsPaused then return end
     performance.addEntry(dt)
-    print(dt)
     ResetMovementGrid()
     for y = GridFactor - 1, 1, -1 do
         for x = 1, GridFactor do
@@ -142,6 +140,7 @@ drawGrid(true)
 function love.draw()
     drawGrid()
     button.DrawButtons(minSize)
-    textLabel.drawText(performance.getFPS(), 0,0, nil, BLACK)
+    textLabel.drawText(performance.getFPS(), 0, 0, nil, BLACK)
+    textLabel.drawText(debugInfo, 0, 20, nil, BLACK)
 end
 

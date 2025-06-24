@@ -6,7 +6,6 @@ local pressedDebug, lastPressedDebug = 0,0
 local function saveGrid(gridFactor, grid)
     local bypassLimit = false
 
-    print(pressedDebug .. ", " .. lastPressedDebug)
     if lastPressedDebug and (os.time() - lastPressedDebug) <= 1 and pressedDebug > 0 then
         bypassLimit = true
     else
@@ -42,7 +41,6 @@ end
 local function pauseGame()
     if IsPaused ~= nil then
         IsPaused = not IsPaused
-        print("Game paused:", IsPaused)
     end
 end
 
@@ -51,12 +49,12 @@ function M.keypressed(k, gridFactor, grid)
         saveGrid(gridFactor, grid)
     elseif k == 'f6' then
         pauseGame()
+        print("Game paused:", IsPaused)
     elseif k == 'f7' then
         local avg = performance.getAvg()
-        print("Avg: "..avg)
-    elseif k == 'f8' then
         performance.saveToFile()
         performance.clearEntries()
+        print("Avg: "..avg)
         print("Performance entries saved and cleared.")
     end
 end

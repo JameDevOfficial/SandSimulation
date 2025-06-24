@@ -6,9 +6,6 @@ Entries = 0
 M.addEntry = function(dt)
     Entries = Entries + 1
     TimeHistory[Entries] = dt
-    if Entries >= 1000 then
-        M.clearEntries()
-    end
 end
 
 M.getAvg = function()
@@ -47,12 +44,8 @@ M.clearEntries = function ()
 end
 
 M.getFPS = function ()
-    local totalTime, i = 0, 0
-    while totalTime < 1 and i < Entries do
-        totalTime = totalTime + TimeHistory[Entries - i]
-        i = i + 1
-    end
-    return i
+    local fps = math.floor(1.0 / love.timer.getDelta())
+    return fps
 end
 
 return M
