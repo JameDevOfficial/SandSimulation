@@ -1,15 +1,20 @@
 local lib = require("game.libs.lib")
-local button = require("game.libs.button")
 local time = require("os")
 local debug = require("game.libs.debug")
+local performance = require("game.libs.performance")
+
 local sand = require("game.elements.sand")
 local water = require("game.elements.water")
+local textLabel = require("game.libs.ui.textLabel")
+local button = require("game.libs.ui.button")
+
+local BLACK = {0,0,0,1}
 
 
 --Config Drawing
 GridFactor = 100
 local padding = 0.
-local waitTime = 0
+local waitTime = 0.
 local cursorSize = 5
 local cursorRadius = (cursorSize - 1) / 2
 
@@ -102,7 +107,7 @@ local function drawAtCursor()
                 local ny, nx = cy + dy, cx + dx
                 if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                     Grid[ny] = Grid[ny] or {}
-                    if Grid[ny][nx] ~= "empty" then return end
+                    if Grid[ny][nx] ~= "empty" and CurrentMode ~= "empty" then return end
                     Grid[ny][nx] = CurrentMode
                 end
             end
@@ -112,17 +117,14 @@ end
 
 function love.update(dt)
     if IsPaused then return end
+    performance.addEntry(dt)
     print(dt)
     ResetMovementGrid()
     for y = GridFactor - 1, 1, -1 do
         for x = 1, GridFactor do
             sand.sandCalculation(x, y)
-        end
-    end
-
-    for y = GridFactor, 1, -1 do
-        for x = 1, GridFactor do
             water.waterCalculation(x, y)
+
         end
     end
 
@@ -140,5 +142,6 @@ drawGrid(true)
 function love.draw()
     drawGrid()
     button.DrawButtons(minSize)
+    textLabel.drawText(performance.getFPS(), 0,0, nil, BLACK)
 end
 

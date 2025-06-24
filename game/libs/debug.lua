@@ -1,3 +1,5 @@
+local performance = require("game.libs.performance")
+
 M = {}
 local pressedDebug, lastPressedDebug = 0,0
 
@@ -49,6 +51,13 @@ function M.keypressed(k, gridFactor, grid)
         saveGrid(gridFactor, grid)
     elseif k == 'f6' then
         pauseGame()
+    elseif k == 'f7' then
+        local avg = performance.getAvg()
+        print("Avg: "..avg)
+    elseif k == 'f8' then
+        performance.saveToFile()
+        performance.clearEntries()
+        print("Performance entries saved and cleared.")
     end
 end
 

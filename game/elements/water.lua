@@ -27,12 +27,10 @@ function M.waterCalculation(x, y)
                 Grid[y][x + 1] = element
                 Grid[y][x] = v
                 MovedGrid[y][x + 1] = 1
-                print("r")
             else
                 Grid[y][x - 1] = element
                 Grid[y][x] = v
                 MovedGrid[y][x - 1] = 1
-                print("l")
             end
         elseif canMoveRight then
             Grid[y][x + 1] = element

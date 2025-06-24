@@ -2,3 +2,4 @@
 bin
 make_all.toml
 grid_dump.txt
+avg_times_history.txt
