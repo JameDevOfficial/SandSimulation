@@ -1,5 +1,7 @@
+game
 .vscode
 bin
+build
 make_all.toml
 grid_dump.txt
 avg_times_history.txt

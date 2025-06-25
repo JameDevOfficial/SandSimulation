@@ -1,12 +1,12 @@
 local lib = require("game.libs.lib")
-local time = require("os")
 local debug = require("game.libs.debug")
 local performance = require("game.libs.performance")
 
 local sand = require("game.elements.sand")
 local water = require("game.elements.water")
-local textLabel = require("game.libs.ui.textLabel")
 local button = require("game.libs.ui.button")
+local textLabel = require("game.libs.ui.textLabel")
+
 
 local BLACK = {0,0,0,1}
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
