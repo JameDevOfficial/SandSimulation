@@ -1,18 +1,19 @@
 local M = {}
-local _minSize
+local _minSize, _xStart
 local function getButtonRects()
     local totalWidth = #Buttons * ButtonWidth + (#Buttons - 1) * ButtonPadding
     local startX = (_minSize - totalWidth) / 2
     local rects = {}
     for i, btn in ipairs(Buttons) do
         local x = startX + (i - 1) * (ButtonWidth + ButtonPadding)
-        rects[i] = {x = x, y = ButtonY, w = ButtonWidth, h = ButtonHeight, label = btn}
+        rects[i] = { x = x + _xStart, y = ButtonY, w = ButtonWidth, h = ButtonHeight, label = btn }
     end
     return rects
 end
 
-function M.DrawButtons(minSize)
+function M.DrawButtons(minSize, xStart)
     _minSize = minSize
+    _xStart = xStart
     local rects = getButtonRects()
     for i, rect in ipairs(rects) do
         if Buttons[i] == CurrentMode then

@@ -11,6 +11,8 @@ local textLabel = require("game.libs.ui.textLabel")
 local BLACK = {0,0,0,1}
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
+DEBUG = true
+
 --Config Drawing
 GridFactor = 100
 local padding = 0.
@@ -20,7 +22,7 @@ local cursorRadius = (cursorSize - 1) / 2
 
 --Config Mode
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water" }
+Buttons = { "empty", "sand", "water", "wall" }
 
 ButtonPadding = 10
 ButtonHeight = 30
@@ -38,6 +40,7 @@ local cellSize = {
     x = ((minSize - padding * (GridFactor + 1)) / GridFactor),
     y = ((minSize - padding * (GridFactor + 1)) / GridFactor)
 }
+local xCenter, xStart = 0,0
 
 ResetMovementGrid = function()
     for y = 1, GridFactor do
@@ -52,20 +55,24 @@ local drawGrid = function(emptyAll)
     for y = 1, GridFactor do
         Grid[y] = Grid[y] or {}
         for x = 1, GridFactor do
+            if emptyAll == true then
+                Grid[y][x] = "empty"
+                goto continue
+            end
             Grid[y][x] = Grid[y][x] or "empty"
-            local drawX = (x - 1) * (cellSize.x + padding) + padding
+            local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
             local drawY = (y - 1) * (cellSize.y + padding) + padding
             if Grid[y][x] == "sand" then
                 love.graphics.setColor(250 / 255, 220 / 255, 137 / 255)
             elseif Grid[y][x] == "water" then
                 love.graphics.setColor(84 / 255, 151 / 255, 240 / 255)
+            elseif Grid[y][x] == "wall" then
+                love.graphics.setColor(199 / 255, 200 / 255, 201 / 255)
             else
                 love.graphics.setColor(1, 1, 1)
             end
             love.graphics.rectangle("fill", drawX, drawY, cellSize.x, cellSize.y)
-            if emptyAll == true then
-                Grid[y][x] = "empty"
-            end
+            ::continue::
         end
     end
 end
@@ -77,6 +84,8 @@ function love.resize()
         x = ((minSize - padding * (GridFactor + 1)) / GridFactor),
         y = ((minSize - padding * (GridFactor + 1)) / GridFactor)
     }
+    xCenter = math.floor(screenWidth / 2)
+    xStart = xCenter - (GridFactor / 2) * cellSize.x
     drawGrid()
 end
 
@@ -94,6 +103,7 @@ end
 
 local function drawAtCursor()
     local mx, my = love.mouse.getPosition()
+    mx = mx - xStart
     local cy, cx = getGridElementAtCursor(mx, my)
     --Draw in Cursor Radius
     if mx > minSize or mx < 0 or my > minSize or my < 0 then
@@ -139,8 +149,9 @@ end
 drawGrid(true)
 function love.draw()
     drawGrid()
-    button.DrawButtons(minSize)
-    textLabel.drawText(performance.getFPS(), 0, 0, nil, BLACK)
-    textLabel.drawText(debugInfo, 0, 20, nil, BLACK)
+    button.DrawButtons(minSize, xStart)
+    textLabel.drawText(performance.getFPS(), xStart, 0, nil, BLACK)
+    if not DEBUG then return end
+    textLabel.drawText(debugInfo, xStart, 20, nil, BLACK)
 end
 
