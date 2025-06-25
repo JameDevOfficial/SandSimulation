@@ -71,7 +71,6 @@ local drawGrid = function(emptyAll)
                     love.graphics.setColor(1, 1, 1)
                 end
                 love.graphics.rectangle("fill", drawX, drawY, cellSize.x, cellSize.y)
-                ::cont::
             end
         end
     end
