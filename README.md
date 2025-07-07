@@ -11,9 +11,9 @@ A simple sand (and more elements) simulation built with Lua and LÖVE2D.
 - LÖVE2D
 
 ## Where to Play? 
-I plan to release the game for:
 - Windows (via makelove)
-- Web (via lovejs) 
+- Macos (via makelove) 
+- Web (via lovejs)
   
 ## Workspace Structure
 - `game/` — Main game source code
