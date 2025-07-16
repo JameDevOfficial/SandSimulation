@@ -7,7 +7,6 @@ local water = require("game.elements.water")
 local button = require("game.libs.ui.button")
 local textLabel = require("game.libs.ui.textLabel")
 
-
 local BLACK = {0,0,0,1}
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
@@ -23,6 +22,12 @@ local cursorRadius = (cursorSize - 1) / 2
 --Config Mode
 CurrentMode = "sand"
 Buttons = { "empty", "sand", "water", "wall" }
+Elements = {
+    ["empty"] = nil,
+    ["sand"] = sand.sandCalculation,
+    ["water"] = water.waterCalculation,
+    ["wall"] = nil,
+}
 
 ButtonPadding = 10
 ButtonHeight = 30
@@ -31,7 +36,6 @@ ButtonY = 10
 
 IsPaused = false
 Grid = {}
-MovedGrid = {}
 local screenWidth, screenHeight, minSize
 
 screenWidth, screenHeight = love.graphics.getDimensions()
@@ -41,15 +45,6 @@ local cellSize = {
     y = ((minSize - padding * (GridFactor + 1)) / GridFactor)
 }
 local xCenter, xStart = 0,0
-
-ResetMovementGrid = function()
-    for y = 1, GridFactor do
-        MovedGrid[y] = {}
-        for x = 1, GridFactor do
-            MovedGrid[y][x] = 0
-        end
-    end
-end
 
 local drawGrid = function(emptyAll)
     for y = 1, GridFactor do
@@ -130,9 +125,10 @@ function love.update(dt)
     ResetMovementGrid()
     for y = GridFactor - 1, 1, -1 do
         for x = 1, GridFactor do
-            sand.sandCalculation(x, y)
-            water.waterCalculation(x, y)
-
+            local elementFunc = Elements[Grid[y][x]]
+            if elementFunc then
+                elementFunc(x,y)
+            end
         end
     end
 
