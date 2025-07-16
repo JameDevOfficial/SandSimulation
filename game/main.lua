@@ -122,7 +122,6 @@ end
 function love.update(dt)
     if IsPaused then return end
     performance.addEntry(dt)
-    ResetMovementGrid()
     for y = GridFactor - 1, 1, -1 do
         for x = 1, GridFactor do
             local elementFunc = Elements[Grid[y][x]]
