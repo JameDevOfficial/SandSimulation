@@ -1,11 +1,6 @@
 M = {}
 local element = "water"
 local replaceElements = { "empty" }
-local waterDirections = {}
-
-function M.clearDirections()
-    waterDirections = {}
-end
 
 function M.waterCalculation(x, y)
     if Grid[y][x] ~= element then return end
