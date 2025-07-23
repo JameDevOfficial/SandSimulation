@@ -1,38 +1,41 @@
-local lib = require("game.libs.lib")
-local debug = require("game.libs.debug")
-local performance = require("game.libs.performance")
+local lib = require("libs.lib")
+local debug = require("libs.debug")
+local performance = require("libs.performance")
+local suit = require("libs.suit")
+local sand = require("elements.sand")
+local water = require("elements.water")
+local button = require("libs.ui.button")
+local textLabel = require("libs.ui.textLabel")
 
-local sand = require("game.elements.sand")
-local water = require("game.elements.water")
-local button = require("game.libs.ui.button")
-local textLabel = require("game.libs.ui.textLabel")
-
-
-local BLACK = {0,0,0,1}
+local input = { text = "" }
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
-DEBUG = true
+IsPaused = false
+Grid = {}
 
---Config Drawing
+BLACK = { 0, 0, 0, 1 }
+CurrentMode = "sand"
+Buttons = { "empty", "sand", "water", "wall" }
+Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
+Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
+Light = love.graphics.newFont("fonts/Rubik-Light.ttf")
+Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
+
+--Config
+DEBUG = true
 GridFactor = 100
+MovedGrid = {}
+
+--UI
+ButtonWidth = 90
+ButtonHeight = 30
+ButtonPadding = 10
+
+local screenWidth, screenHeight, minSize
 local padding = 0.
 local waitTime = 0.
 local cursorSize = 5
 local cursorRadius = (cursorSize - 1) / 2
-
---Config Mode
-CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall" }
-
-ButtonPadding = 10
-ButtonHeight = 30
-ButtonWidth = 100
-ButtonY = 10
-
-IsPaused = false
-Grid = {}
-MovedGrid = {}
-local screenWidth, screenHeight, minSize
 
 screenWidth, screenHeight = love.graphics.getDimensions()
 minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
@@ -40,7 +43,7 @@ local cellSize = {
     x = ((minSize - padding * (GridFactor + 1)) / GridFactor),
     y = ((minSize - padding * (GridFactor + 1)) / GridFactor)
 }
-local xCenter, xStart = 0,0
+local xCenter, xStart = 0, 0
 
 ResetMovementGrid = function()
     for y = 1, GridFactor do
@@ -90,8 +93,8 @@ function love.resize()
 end
 
 local function getGridElementAtCursor(mx, my)
-    for y = 1, GridFactor+1 do
-        for x = 1, GridFactor+1 do
+    for y = 1, GridFactor + 1 do
+        for x = 1, GridFactor + 1 do
             local cellX = (x - 1) * (cellSize.x + padding) + padding
             local cellY = (y - 1) * (cellSize.y + padding) + padding
             if mx >= cellX and mx <= cellX + cellSize.x and my >= cellY and my <= cellY + cellSize.y then
@@ -124,6 +127,11 @@ local function drawAtCursor()
     end
 end
 
+function love.load()
+    drawGrid(true)
+    love.graphics.setFont(Regular)
+end
+
 function love.update(dt)
     if IsPaused then return end
     performance.addEntry(dt)
@@ -132,7 +140,6 @@ function love.update(dt)
         for x = 1, GridFactor do
             sand.sandCalculation(x, y)
             water.waterCalculation(x, y)
-
         end
     end
 
@@ -146,12 +153,28 @@ function love.keypressed(k)
     debug.keypressed(k, GridFactor, Grid)
 end
 
-drawGrid(true)
-function love.draw()
-    drawGrid()
-    button.DrawButtons(minSize, xStart)
-    textLabel.drawText(performance.getFPS(), xStart, 0, nil, BLACK)
+local function drawUi()
+    local totalButtonRowWidth = ButtonWidth * #Buttons + ButtonPadding * (#Buttons - 1)
+    --Element Buttons
+    suit.layout:reset(((screenWidth - minSize) / 2) + ((minSize - totalButtonRowWidth) / 2), 0, ButtonPadding)
+    suit.theme.color.normal.fg = { 0.73, 0.73, 0.73 }
+    for i, v in ipairs(Buttons) do
+        if suit.Button(v, suit.layout:col(ButtonWidth, ButtonHeight)).hit then
+            CurrentMode = v
+        end
+    end
+    --Text Labels
+    suit.theme.color.normal.fg = { 0, 0, 0 }
+    suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
+    suit.Label(performance.getFPS(), { align = "left" }, suit.layout:row(200, 30))
+    suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
+    suit.Label("Current Mode: " .. CurrentMode, { align = "right" }, suit.layout:row(minSize, 30))
     if not DEBUG then return end
-    textLabel.drawText(debugInfo, xStart, 20, nil, BLACK)
+    suit.Label(debugInfo, { align = "left" }, suit.layout:row())
 end
 
+function love.draw()
+    drawGrid()
+    drawUi()
+    suit.draw()
+end

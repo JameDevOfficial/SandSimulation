@@ -1,12 +1,20 @@
 local M = {}
-local _minSize, _xStart
+--[[local _minSize, _xStart
+
 local function getButtonRects()
-    local totalWidth = #Buttons * ButtonWidth + (#Buttons - 1) * ButtonPadding
+    local totalWidth
+    if ManualSizes then 
+        totalWidth = #Buttons * ButtonWidth + (#Buttons - 1) * ButtonPadding
+    else
+        totalWidth = #Buttons * ButtonWidth + (#Buttons - 1) * ButtonPadding
+    end
     local startX = (_minSize - totalWidth) / 2
     local rects = {}
     for i, btn in ipairs(Buttons) do
-        local x = startX + (i - 1) * (ButtonWidth + ButtonPadding)
-        rects[i] = { x = x + _xStart, y = ButtonY, w = ButtonWidth, h = ButtonHeight, label = btn }
+        if ManualSizes then 
+            local x = startX + (i - 1) * (ButtonWidth + ButtonPadding)
+            rects[i] = { x = x + _xStart, y = ButtonY, w = ButtonWidth, h = ButtonHeight, label = btn }
+        end
     end
     return rects
 end
@@ -45,5 +53,5 @@ function love.mousepressed(x, y, button)
         handleButtonClick(x, y)
     end
 end
-
+--]]
 return M

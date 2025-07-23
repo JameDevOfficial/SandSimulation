@@ -1,4 +1,4 @@
-local performance = require("game.libs.performance")
+local performance = require("libs.performance")
 
 M = {}
 local pressedDebug, lastPressedDebug = 0,0
