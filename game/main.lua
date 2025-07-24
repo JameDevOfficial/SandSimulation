@@ -12,10 +12,11 @@ local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
 IsPaused = false
 Grid = {}
+ButtonRows = 0
 
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall", "plant", "test", "Test", "TTest", "TTTETS" }
+Buttons = { "empty", "sand", "water", "wall", "plant"}
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
 Light = love.graphics.newFont("fonts/Rubik-Light.ttf")
@@ -95,6 +96,7 @@ local function getGridElementAtCursor(mx, my)
 end
 
 local function drawAtCursor()
+    print(suit:anyHovered())
     local mx, my = love.mouse.getPosition()
     mx = mx - xStart
     local cy, cx = getGridElementAtCursor(mx, my)
@@ -124,7 +126,7 @@ local function drawUi()
 
     --Element Buttons
     local buttonCount = 0
-    local rows = 0
+    ButtonRows = 0
 
     suit.layout:reset(
         ((screenWidth - minSize) / 2) +
@@ -133,11 +135,11 @@ local function drawUi()
 
     for i, v in ipairs(Buttons) do
         if buttonCount > 0 and buttonCount % buttonsPerRow == 0 then
-            rows = rows + 1
+            ButtonRows = ButtonRows + 1
             suit.layout:reset(
                 ((screenWidth - minSize) / 2) +
                 ((minSize - (buttonsPerRow * ButtonWidth + (buttonsPerRow - 1) * ButtonPadding)) / 2),
-                rows * (ButtonHeight + ButtonPadding), ButtonPadding)
+                ButtonRows * (ButtonHeight + ButtonPadding), ButtonPadding)
         end
         buttonCount = buttonCount + 1
         if suit.Button(v, suit.layout:col(ButtonWidth, ButtonHeight)).hit then
@@ -180,7 +182,7 @@ function love.update(dt)
         end
     end
 
-    if love.mouse.isDown(1) then
+    if love.mouse.isDown(1) and not suit.mouseInRect(0, 0, screenWidth, (ButtonRows + 1) * (ButtonHeight + ButtonPadding)) then
         drawAtCursor()
     end
     lib.wait(waitTime)
