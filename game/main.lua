@@ -4,10 +4,8 @@ local performance = require("libs.performance")
 local suit = require("libs.suit")
 local sand = require("elements.sand")
 local water = require("elements.water")
-local button = require("libs.ui.button")
-local textLabel = require("libs.ui.textLabel")
+local colors = require("libs.colors")
 
-local input = { text = "" }
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
 IsPaused = false
@@ -16,7 +14,7 @@ ButtonRows = 0
 
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall", "plant"}
+Buttons = { "empty", "sand", "water", "wall", "plant" }
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
 Light = love.graphics.newFont("fonts/Rubik-Light.ttf")
@@ -67,7 +65,7 @@ local drawGrid = function(emptyAll)
             local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
             local drawY = (y - 1) * (cellSize.y + padding) + padding
             if Grid[y][x] == "sand" then
-                love.graphics.setColor(250 / 255, 220 / 255, 137 / 255)
+                colors.setColorInRange({ 250, 220, 137 }, { 219, 188, 103 })
             elseif Grid[y][x] == "water" then
                 love.graphics.setColor(84 / 255, 151 / 255, 240 / 255)
             elseif Grid[y][x] == "wall" then
@@ -96,7 +94,6 @@ local function getGridElementAtCursor(mx, my)
 end
 
 local function drawAtCursor()
-    print(suit:anyHovered())
     local mx, my = love.mouse.getPosition()
     mx = mx - xStart
     local cy, cx = getGridElementAtCursor(mx, my)
