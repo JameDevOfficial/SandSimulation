@@ -23,7 +23,7 @@ Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
 
 --Config
 DEBUG = true
-GridFactor = 200
+GridFactor = 150
 MovedGrid = {}
 
 --UI
@@ -108,7 +108,7 @@ local function drawAtCursor()
     if not cy and cx then return end
     for dy = -cursorRadius, cursorRadius do
         for dx = -cursorRadius, cursorRadius do
-            if (dx + 0.5)^2 + (dy + 0.5)^2 <= cursorRadius * cursorRadius then
+            if (dx + 0.5) ^ 2 + (dy + 0.5) ^ 2 <= cursorRadius * cursorRadius then
                 local ny, nx = cy + dy, cx + dx
                 if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                     Grid[ny] = Grid[ny] or {}
@@ -183,7 +183,14 @@ function love.update(dt)
     local startValue = direction == -1 and GridFactor - 1 or 1
     local endValue = direction == -1 and 1 or GridFactor
     for y = startValue, endValue, direction do
-        for x = endValue, startValue, -1* direction do
+        local xStart, xEnd, xStep
+        if y % 2 == 0 then
+            xStart, xEnd, xStep = 1, GridFactor, 1
+        else
+            xStart, xEnd, xStep = GridFactor, 1, -1
+        end
+
+        for x = xStart, xEnd, xStep do
             local cell = Grid[y] and Grid[y][x]
             if cell == "sand" then
                 sand.sandCalculation(x, y)
@@ -192,7 +199,8 @@ function love.update(dt)
             end
         end
     end
-    direction = -1 * direction
+
+    direction = -direction
     if love.mouse.isDown(1) and not suit.mouseInRect(0, 0, screenWidth, (ButtonRows + 1) * (ButtonHeight + ButtonPadding)) then
         drawAtCursor()
     end
