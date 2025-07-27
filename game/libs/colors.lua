@@ -11,6 +11,6 @@ function M.setColorInRange(color1, color2)
         math.random(color1[1], color2[1]),
         math.random(color1[2], color2[2]),
         math.random(color1[3], color2[3])
-    love.graphics.setColor(r / 255, g / 255, b / 255)
+    return {r / 255, g / 255, b / 255}
 end
 return M

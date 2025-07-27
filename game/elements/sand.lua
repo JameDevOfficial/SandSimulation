@@ -1,5 +1,7 @@
 M = {}
+local colors = require("libs.colors")
 
+local tempGrid
 local element = "sand"
 local replaceElements = {"empty", "water"}
 
@@ -30,6 +32,23 @@ function M.sandCalculation(x, y)
             end
         end
     end
+end
+
+function M.generateColorMap(Grid, GridFactor)
+    tempGrid = {}
+    for y = 1, GridFactor do
+        tempGrid[y] = {}
+        for x = 1, GridFactor do
+            tempGrid[y][x] = colors.setColorInRange({ 250, 220, 123 }, { 230, 200, 103 })
+        end
+    end
+end
+
+function M.getColor(x, y)
+    if tempGrid and tempGrid[y] then
+        return tempGrid[y][x]
+    end
+    return nil
 end
 
 return M

@@ -65,7 +65,8 @@ local drawGrid = function(emptyAll)
             local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
             local drawY = (y - 1) * (cellSize.y + padding) + padding
             if Grid[y][x] == "sand" then
-                colors.setColorInRange({ 250, 220, 137 }, { 219, 188, 103 })
+                local sandColor = sand.getColor(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
+                love.graphics.setColor(sandColor)
             elseif Grid[y][x] == "water" then
                 love.graphics.setColor(84 / 255, 151 / 255, 240 / 255)
             elseif Grid[y][x] == "wall" then
@@ -155,6 +156,7 @@ end
 
 --Load
 function love.load()
+    sand.generateColorMap(Grid, GridFactor)
     drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
