@@ -34,7 +34,7 @@ function M.sandCalculation(x, y)
     end
 end
 
-function M.generateColorMap(Grid, GridFactor)
+function M.generateColorMapSand(Grid, GridFactor)
     tempGrid = {}
     for y = 1, GridFactor do
         tempGrid[y] = {}
@@ -44,7 +44,7 @@ function M.generateColorMap(Grid, GridFactor)
     end
 end
 
-function M.getColor(x, y)
+function M.getColorSand(x, y)
     if tempGrid and tempGrid[y] then
         return tempGrid[y][x]
     end

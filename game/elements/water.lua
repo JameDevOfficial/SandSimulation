@@ -1,6 +1,9 @@
 M = {}
+local colors = require("libs.colors")
+
 local element = "water"
 local replaceElements = { "empty" }
+local tempGrid
 
 function M.waterCalculation(x, y)
     if Grid[y][x] ~= element then return end

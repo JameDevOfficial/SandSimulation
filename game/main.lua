@@ -22,7 +22,7 @@ Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
 
 --Config
 DEBUG = true
-GridFactor = 100
+GridFactor = 200
 MovedGrid = {}
 
 --UI
@@ -65,10 +65,11 @@ local drawGrid = function(emptyAll)
             local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
             local drawY = (y - 1) * (cellSize.y + padding) + padding
             if Grid[y][x] == "sand" then
-                local sandColor = sand.getColor(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
+                local sandColor = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
                 love.graphics.setColor(sandColor)
             elseif Grid[y][x] == "water" then
-                love.graphics.setColor(84 / 255, 151 / 255, 240 / 255)
+                local waterColor = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
+                love.graphics.setColor(waterColor)
             elseif Grid[y][x] == "wall" then
                 love.graphics.setColor(199 / 255, 200 / 255, 201 / 255)
             else
@@ -79,8 +80,6 @@ local drawGrid = function(emptyAll)
         end
     end
 end
-
-
 
 local function getGridElementAtCursor(mx, my)
     for y = 1, GridFactor + 1 do
@@ -105,12 +104,13 @@ local function drawAtCursor()
     if not cy and cx then return end
     for dy = -cursorRadius, cursorRadius do
         for dx = -cursorRadius, cursorRadius do
-            if dx * dx + dy * dy <= cursorRadius * cursorRadius then
+            if (dx + 0.5)^2 + (dy + 0.5)^2 <= cursorRadius * cursorRadius then
                 local ny, nx = cy + dy, cx + dx
                 if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                     Grid[ny] = Grid[ny] or {}
-                    if Grid[ny][nx] ~= "empty" and CurrentMode ~= "empty" then return end
-                    Grid[ny][nx] = CurrentMode
+                    if Grid[ny][nx] == "empty" or CurrentMode == "empty" then
+                        Grid[ny][nx] = CurrentMode
+                    end
                 end
             end
         end
@@ -156,7 +156,7 @@ end
 
 --Load
 function love.load()
-    sand.generateColorMap(Grid, GridFactor)
+    sand.generateColorMapSand(Grid, GridFactor)
     drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
@@ -176,8 +176,12 @@ function love.update(dt)
     ResetMovementGrid()
     for y = GridFactor - 1, 1, -1 do
         for x = 1, GridFactor do
-            sand.sandCalculation(x, y)
-            water.waterCalculation(x, y)
+            local cell = Grid[y] and Grid[y][x]
+            if cell == "sand" then
+                sand.sandCalculation(x, y)
+            elseif cell == "water" then
+                water.waterCalculation(x, y)
+            end
         end
     end
 
