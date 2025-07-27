@@ -4,6 +4,7 @@ local performance = require("libs.performance")
 local suit = require("libs.suit")
 local sand = require("elements.sand")
 local water = require("elements.water")
+local plant = require("elements.plant")
 local colors = require("libs.colors")
 
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
@@ -33,7 +34,7 @@ ButtonPadding = 10
 local screenWidth, screenHeight, minSize
 local padding = 0.
 local waitTime = 0.
-local cursorSize = 5
+local cursorSize = 13
 local cursorRadius = (cursorSize - 1) / 2
 
 screenWidth, screenHeight = love.graphics.getDimensions()
@@ -72,6 +73,9 @@ local drawGrid = function(emptyAll)
                 love.graphics.setColor(waterColor)
             elseif Grid[y][x] == "wall" then
                 love.graphics.setColor(199 / 255, 200 / 255, 201 / 255)
+            elseif Grid[y][x] == "plant" then
+                local plantColor = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                love.graphics.setColor(plantColor)
             else
                 love.graphics.setColor(1, 1, 1)
             end
@@ -157,6 +161,7 @@ end
 --Load
 function love.load()
     sand.generateColorMapSand(Grid, GridFactor)
+    plant.generateColorMapPlant(Grid, GridFactor)
     drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
@@ -170,12 +175,15 @@ function love.draw()
 end
 
 --Update
+local direction = -1
 function love.update(dt)
     if IsPaused then return end
     performance.addEntry(dt)
     ResetMovementGrid()
-    for y = GridFactor - 1, 1, -1 do
-        for x = 1, GridFactor do
+    local startValue = direction == -1 and GridFactor - 1 or 1
+    local endValue = direction == -1 and 1 or GridFactor
+    for y = startValue, endValue, direction do
+        for x = endValue, startValue, -1* direction do
             local cell = Grid[y] and Grid[y][x]
             if cell == "sand" then
                 sand.sandCalculation(x, y)
@@ -184,7 +192,7 @@ function love.update(dt)
             end
         end
     end
-
+    direction = -1 * direction
     if love.mouse.isDown(1) and not suit.mouseInRect(0, 0, screenWidth, (ButtonRows + 1) * (ButtonHeight + ButtonPadding)) then
         drawAtCursor()
     end
