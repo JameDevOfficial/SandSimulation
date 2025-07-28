@@ -5,6 +5,7 @@ import platform
 from pathlib import Path
 
 def run(cmd, cwd=None):
+    current_dir = os.getcwd()
     print(f"Running: {cmd}")
     result = subprocess.run(cmd, shell=True, cwd=cwd)
     if result.returncode != 0:
@@ -89,7 +90,7 @@ def main():
     checks = {
         "Windows 32-bit": executables / "SandSimulation-win32.zip",
         "Windows 64-bit": executables / "SandSimulation-win64.zip", 
-        "macOS": executables / "SandSimulation-macosx-x64.zip",
+        "macOS": executables / "SandSimulation-macos.zip",
         "Linux": executables / "SandSimulation-linux-x64.zip",
         "Web version": web / "index.html"
     }

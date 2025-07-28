@@ -48,4 +48,22 @@ function love.conf(t)
     t.modules.touch = true              -- Enable the touch module (boolean)
     t.modules.video = true              -- Enable the video module (boolean)
     t.modules.window = true             -- Enable the window module (boolean)
+    t.releases = {
+        title = "SandSimulation",
+        package = "sand_simulation",
+        version = "0.0.0",
+        author = "Jame B.",
+        email = "officialjamedev@gmail.com",
+        description = "A falling sand simulation made with LÖVE.",
+        homepage = "https://github.com/JameDevOfficial/SandSimulation",
+        identifier = "com.jamedev.sandsimulation",
+        loveVersion = "11.3",
+        compile = true,
+        platforms = { "Windows", "Windows64", "Linux", "MacOS" },
+        releaseDirectory = "../executables",
+        excludeFileList = {
+            "%.psd$", "%.xcf$", "%.zip$", "%.tar.gz$",
+            "^build/", "^docs/", "^releases/", "^tests/"
+        }
+    }
 end
