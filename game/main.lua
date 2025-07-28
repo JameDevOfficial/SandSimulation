@@ -60,27 +60,26 @@ local drawGrid = function(emptyAll)
         for x = 1, GridFactor do
             if emptyAll == true then
                 Grid[y][x] = "empty"
-                goto continue
-            end
-            Grid[y][x] = Grid[y][x] or "empty"
-            local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
-            local drawY = (y - 1) * (cellSize.y + padding) + padding
-            if Grid[y][x] == "sand" then
-                local sandColor = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
-                love.graphics.setColor(sandColor)
-            elseif Grid[y][x] == "water" then
-                local waterColor = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
-                love.graphics.setColor(waterColor)
-            elseif Grid[y][x] == "wall" then
-                love.graphics.setColor(199 / 255, 200 / 255, 201 / 255)
-            elseif Grid[y][x] == "plant" then
-                local plantColor = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
-                love.graphics.setColor(plantColor)
             else
-                love.graphics.setColor(1, 1, 1)
+                Grid[y][x] = Grid[y][x] or "empty"
+                local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
+                local drawY = (y - 1) * (cellSize.y + padding) + padding
+                if Grid[y][x] == "sand" then
+                    local sandColor = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
+                    love.graphics.setColor(sandColor)
+                elseif Grid[y][x] == "water" then
+                    local waterColor = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
+                    love.graphics.setColor(waterColor)
+                elseif Grid[y][x] == "wall" then
+                    love.graphics.setColor(199 / 255, 200 / 255, 201 / 255)
+                elseif Grid[y][x] == "plant" then
+                    local plantColor = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                    love.graphics.setColor(plantColor)
+                else
+                    love.graphics.setColor(1, 1, 1)
+                end
+                love.graphics.rectangle("fill", drawX, drawY, cellSize.x, cellSize.y)
             end
-            love.graphics.rectangle("fill", drawX, drawY, cellSize.x, cellSize.y)
-            ::continue::
         end
     end
 end

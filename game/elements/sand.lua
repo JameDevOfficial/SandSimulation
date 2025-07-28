@@ -39,7 +39,7 @@ function M.generateColorMapSand(Grid, GridFactor)
     for y = 1, GridFactor do
         tempGrid[y] = {}
         for x = 1, GridFactor do
-            tempGrid[y][x] = colors.setColorInRange({ 250, 220, 123 }, { 230, 200, 103 })
+            tempGrid[y][x] = colors.setColorInRange({ 230, 200, 103 }, { 250, 220, 123 } )
         end
     end
 end

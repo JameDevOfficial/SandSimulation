@@ -4,3 +4,5 @@ build
 make_all.toml
 grid_dump.txt
 avg_times_history.txt
+luacc.lua
+releases
