@@ -195,6 +195,8 @@ function love.update(dt)
                 sand.sandCalculation(x, y)
             elseif cell == "water" then
                 water.waterCalculation(x, y)
+            elseif cell == "plant" then
+                plant.plantCalculation(x, y)
             end
         end
     end

@@ -3,32 +3,46 @@ local colors = require("libs.colors")
 
 local tempGrid
 local element = "plant"
-local replaceElements = { "empty" }
+local replaceElements = { "water" }
+local replaceChance = 0.1
+
+local function replaceElement(y,x,replace)
+    if replace then
+        Grid[y][x] = "plant"
+    else
+        Grid[y][x] = "empty"
+    end
+end
 
 function M.plantCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
-
-    for i, v in ipairs(replaceElements) do
-        if y < GridFactor and Grid[y + 1][x] == v then
-            Grid[y + 1][x] = element
-            Grid[y][x] = v
-            MovedGrid[y + 1][x] = 1
-            return
-        end
-
-        if y < GridFactor and Grid[y + 1][x] == element then
-            if x < GridFactor and Grid[y + 1][x + 1] == v then
-                Grid[y][x] = v
-                Grid[y + 1][x + 1] = element
-                MovedGrid[y + 1][x + 1] = 1
-                return
-            elseif x > 1 and Grid[y + 1][x - 1] == v then
-                Grid[y][x] = v
-                Grid[y + 1][x - 1] = element
-                MovedGrid[y + 1][x - 1] = 1
-                return
-            end
+    local replace = math.random() <= replaceChance and true or false
+    for _, v in ipairs(replaceElements) do
+        -- above
+        if y > 1 and Grid[y - 1][x] == v then
+            replaceElement(y - 1, x, replace)
+        -- below
+        elseif y < #Grid and Grid[y + 1][x] == v then
+            replaceElement(y + 1, x, replace)
+        -- left
+        elseif x > 1 and Grid[y][x - 1] == v then
+            replaceElement(y, x - 1, replace)
+        -- right
+        elseif x < #Grid[1] and Grid[y][x + 1] == v then
+            replaceElement(y, x + 1, replace)
+        -- top left
+        elseif y > 1 and x > 1 and Grid[y - 1][x - 1] == v then
+            replaceElement(y - 1, x - 1, replace)
+        -- top right
+        elseif y > 1 and x < #Grid[1] and Grid[y - 1][x + 1] == v then
+            replaceElement(y - 1, x + 1, replace)
+        -- bottom left
+        elseif y < #Grid and x > 1 and Grid[y + 1][x - 1] == v then
+            replaceElement(y + 1, x - 1, replace)
+        -- bottom right
+        elseif y < #Grid and x < #Grid[1] and Grid[y + 1][x + 1] == v then
+            replaceElement(y + 1, x + 1, replace)
         end
     end
 end
