@@ -22,7 +22,6 @@ function M.getButtonOpt(v)
             local buttonColor = baseColor
 
             if v == CurrentMode then
-<<<<<<< HEAD
 
             elseif opt.state == "hovered" then
                 buttonColor = {
@@ -35,20 +34,6 @@ function M.getButtonOpt(v)
                     math.min(baseColor[1] + 0.15, 1),
                     math.min(baseColor[2] + 0.15, 1),
                     math.min(baseColor[3] + 0.15, 1)
-=======
-                
-            elseif opt.state == "hovered" then
-                buttonColor = {
-                    math.min(baseColor[1] + 0.2, 1),
-                    math.min(baseColor[2] + 0.2, 1),
-                    math.min(baseColor[3] + 0.2, 1)
-                }
-            else
-                buttonColor = {
-                    math.min(baseColor[1] + 0.2, 1),
-                    math.min(baseColor[2] + 0.2, 1),
-                    math.min(baseColor[3] + 0.2, 1)
->>>>>>> e969f7d4a601793396a62ed5ecf6730fecc59422
                 }
             end
 
