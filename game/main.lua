@@ -18,10 +18,10 @@ CurrentMode = "sand"
 Buttons = { "empty", "sand", "water", "wall", "plant" }
 ButtonColors = {
     ["empty"] = { 0.8, 0.8, 0.8 },
-    ["sand"] = { 0.9, 0.8, 0.5 }, 
-    ["water"] = { 0.3, 0.6, 0.9 }, 
-    ["wall"] = { 0.5, 0.5, 0.5 }, 
-    ["plant"] = { 0.2, 0.5, 0.2 }, 
+    ["sand"] = { 0.9, 0.8, 0.5 },
+    ["water"] = { 0.3, 0.6, 0.9 },
+    ["wall"] = { 0.5, 0.5, 0.5 },
+    ["plant"] = { 0.2, 0.5, 0.2 },
 }
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
@@ -30,7 +30,7 @@ Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
 
 --Config
 DEBUG = true
-GridFactor = 150
+GridFactor = 300
 MovedGrid = {}
 
 --UI
@@ -61,7 +61,16 @@ ResetMovementGrid = function()
     end
 end
 
-local drawGrid = function(emptyAll)
+local setPixelImageData = love.image.newImageData(GridFactor + 1, GridFactor + 1)
+local setPixelImage = love.graphics.newImage(setPixelImageData)
+local elementPixels = minSize / GridFactor
+local actualImageSize, pixelsPerElement
+
+setPixelImage:setFilter("nearest", "nearest")
+print(elementPixels, minSize, GridFactor)
+DrawMode = 1
+
+local drawGrid3 = function(emptyAll)
     for y = 1, GridFactor do
         Grid[y] = Grid[y] or {}
         for x = 1, GridFactor do
@@ -89,6 +98,37 @@ local drawGrid = function(emptyAll)
             end
         end
     end
+end
+
+local drawGrid1 = function(emptyAll)
+    for y = 1, GridFactor do
+        Grid[y] = Grid[y] or {}
+        for x = 1, GridFactor do
+            if emptyAll == true then
+                Grid[y][x] = "sand"
+            else
+                Grid[y][x] = Grid[y][x] or "empty"
+                -- Experimental rendering inspired by https://github.com/KINGTUT10101/PixelRenderingComparison
+                local color
+                if Grid[y][x] == "sand" then
+                    color = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
+                elseif Grid[y][x] == "water" then
+                    color = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
+                elseif Grid[y][x] == "wall" then
+                    color = { 199 / 255, 200 / 255, 201 / 255, 1 }
+                elseif Grid[y][x] == "plant" then
+                    color = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                else
+                    color = { 1, 1, 1, 1 }
+                end
+
+                setPixelImageData:setPixel(x - 1, y - 1, color[1], color[2], color[3], color[4] or 1)
+            end
+        end
+    end
+    setPixelImage:replacePixels(setPixelImageData)
+    local scale = minSize / GridFactor
+    love.graphics.draw(setPixelImage, xStart, 0, 0, scale, scale)
 end
 
 local function getGridElementAtCursor(mx, my)
@@ -166,16 +206,34 @@ end
 
 --Load
 function love.load()
+    -- Initialize ImageData based on DrawMode before calling draw functions
+    if DrawMode == 2 then
+        pixelsPerElement = math.floor(minSize / GridFactor)
+        actualImageSize = pixelsPerElement * GridFactor
+        setPixelImageData = love.image.newImageData(actualImageSize, actualImageSize)
+        setPixelImage = love.graphics.newImage(setPixelImageData)
+        setPixelImage:setFilter("nearest", "nearest")
+    end
+
     sand.generateColorMapSand(Grid, GridFactor)
     plant.generateColorMapPlant(Grid, GridFactor)
-    drawGrid(true)
+
+    if DrawMode == 1 then
+        drawGrid1(true)
+    elseif DrawMode == 3 then
+        drawGrid3(true)
+    end
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
 end
 
 --Draw
 function love.draw()
-    drawGrid()
+    if DrawMode == 1 then
+        drawGrid1()
+    elseif DrawMode == 3 then
+        drawGrid3()
+    end
     drawUi()
     suit.draw()
 end
@@ -230,5 +288,4 @@ function love.resize()
     }
     xCenter = math.floor(screenWidth / 2)
     xStart = xCenter - (GridFactor / 2) * cellSize.x
-    drawGrid()
 end
