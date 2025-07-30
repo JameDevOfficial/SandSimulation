@@ -30,7 +30,7 @@ Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
 
 --Config
 DEBUG = true
-GridFactor = 300
+GridFactor = 150
 MovedGrid = {}
 
 --UI
