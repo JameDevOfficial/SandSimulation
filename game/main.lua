@@ -70,42 +70,12 @@ setPixelImage:setFilter("nearest", "nearest")
 print(elementPixels, minSize, GridFactor)
 DrawMode = 1
 
-local drawGrid3 = function(emptyAll)
+local drawGrid = function(emptyAll)
     for y = 1, GridFactor do
         Grid[y] = Grid[y] or {}
         for x = 1, GridFactor do
             if emptyAll == true then
                 Grid[y][x] = "empty"
-            else
-                Grid[y][x] = Grid[y][x] or "empty"
-                local drawX = (x - 1) * (cellSize.x + padding) + padding + xStart
-                local drawY = (y - 1) * (cellSize.y + padding) + padding
-                if Grid[y][x] == "sand" then
-                    local sandColor = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
-                    love.graphics.setColor(sandColor)
-                elseif Grid[y][x] == "water" then
-                    local waterColor = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
-                    love.graphics.setColor(waterColor)
-                elseif Grid[y][x] == "wall" then
-                    love.graphics.setColor(199 / 255, 200 / 255, 201 / 255)
-                elseif Grid[y][x] == "plant" then
-                    local plantColor = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
-                    love.graphics.setColor(plantColor)
-                else
-                    love.graphics.setColor(1, 1, 1)
-                end
-                love.graphics.rectangle("fill", drawX, drawY, cellSize.x, cellSize.y)
-            end
-        end
-    end
-end
-
-local drawGrid1 = function(emptyAll)
-    for y = 1, GridFactor do
-        Grid[y] = Grid[y] or {}
-        for x = 1, GridFactor do
-            if emptyAll == true then
-                Grid[y][x] = "sand"
             else
                 Grid[y][x] = Grid[y][x] or "empty"
                 -- Experimental rendering inspired by https://github.com/KINGTUT10101/PixelRenderingComparison
@@ -218,22 +188,14 @@ function love.load()
     sand.generateColorMapSand(Grid, GridFactor)
     plant.generateColorMapPlant(Grid, GridFactor)
 
-    if DrawMode == 1 then
-        drawGrid1(true)
-    elseif DrawMode == 3 then
-        drawGrid3(true)
-    end
+    drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
 end
 
 --Draw
 function love.draw()
-    if DrawMode == 1 then
-        drawGrid1()
-    elseif DrawMode == 3 then
-        drawGrid3()
-    end
+    drawGrid()
     drawUi()
     suit.draw()
 end
@@ -288,4 +250,5 @@ function love.resize()
     }
     xCenter = math.floor(screenWidth / 2)
     xStart = xCenter - (GridFactor / 2) * cellSize.x
+    drawGrid()
 end
