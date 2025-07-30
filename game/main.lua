@@ -68,7 +68,6 @@ local actualImageSize, pixelsPerElement
 
 setPixelImage:setFilter("nearest", "nearest")
 print(elementPixels, minSize, GridFactor)
-DrawMode = 1
 
 local drawGrid = function(emptyAll)
     for y = 1, GridFactor do

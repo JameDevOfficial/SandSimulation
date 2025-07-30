@@ -56,10 +56,6 @@ function M.keypressed(k, gridFactor, grid)
         performance.clearEntries()
         print("Avg: "..avg)
         print("Performance entries saved and cleared.")
-    elseif k == '1' then
-        DrawMode = 1
-    elseif k == '3' then
-        DrawMode = 3
     end
 end
 
