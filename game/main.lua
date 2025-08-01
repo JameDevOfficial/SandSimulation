@@ -16,13 +16,14 @@ ButtonHovered = false
 
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall", "plant" }
+Buttons = { "empty", "sand", "water", "wall", "plant", "fire" }
 ButtonColors = {
     ["empty"] = { 0.8, 0.8, 0.8 },
     ["sand"] = { 0.9, 0.8, 0.5 },
     ["water"] = { 0.3, 0.6, 0.9 },
     ["wall"] = { 0.5, 0.5, 0.5 },
     ["plant"] = { 0.2, 0.5, 0.2 },
+    ["fire"] = { 0.7, 0.2, 0.2 }
 }
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
