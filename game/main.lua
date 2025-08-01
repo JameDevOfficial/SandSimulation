@@ -12,6 +12,7 @@ local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 IsPaused = false
 Grid = {}
 ButtonRows = 0
+ButtonHovered = false
 
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
@@ -159,8 +160,12 @@ local function drawUi()
                 ButtonRows * (ButtonHeight + ButtonPadding), ButtonPadding)
         end
         buttonCount = buttonCount + 1
-        if suit.Button(v, colors.getButtonOpt(v), suit.layout:col(ButtonWidth, ButtonHeight)).hit then
+        local btn = suit.Button(v, colors.getButtonOpt(v), suit.layout:col(ButtonWidth, ButtonHeight))
+        if btn.hit then
             CurrentMode = v
+        end
+        if btn.hovered then
+            ButtonHovered = true
         end
     end
 
@@ -228,9 +233,11 @@ function love.update(dt)
     end
 
     direction = -direction
-    if love.mouse.isDown(1) and not suit.mouseInRect(0, 0, screenWidth, (ButtonRows + 1) * (ButtonHeight + ButtonPadding)) then
+    if love.mouse.isDown(1) and not ButtonHovered then
+        print(suit:anyHovered())
         drawAtCursor()
     end
+    ButtonHovered = false
     lib.wait(waitTime)
 end
 
