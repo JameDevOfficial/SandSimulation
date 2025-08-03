@@ -5,6 +5,7 @@ local suit = require("libs.suit")
 local sand = require("elements.sand")
 local water = require("elements.water")
 local plant = require("elements.plant")
+local fire = require("elements.fire")
 local colors = require("libs.colors")
 
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
@@ -43,7 +44,7 @@ ButtonPadding = 10
 local screenWidth, screenHeight, minSize
 local padding = 0.
 local waitTime = 0.
-local cursorSize = 13
+local cursorSize = 15
 local cursorRadius = (cursorSize - 1) / 2
 
 screenWidth, screenHeight = love.graphics.getDimensions()
@@ -89,6 +90,8 @@ local drawGrid = function(emptyAll)
                     color = { 199 / 255, 200 / 255, 201 / 255, 1 }
                 elseif Grid[y][x] == "plant" then
                     color = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                elseif Grid[y][x] == "fire" then
+                    color = fire.getColorFire(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
                 else
                     color = { 1, 1, 1, 1 }
                 end
@@ -161,7 +164,9 @@ local function drawUi()
                 ButtonRows * (ButtonHeight + ButtonPadding), ButtonPadding)
         end
         buttonCount = buttonCount + 1
-        local btn = suit.Button(v, colors.getButtonOpt(v), suit.layout:col(ButtonWidth, ButtonHeight))
+        local text = v
+        text = v:sub(1,1):upper() .. v:sub(2)
+        local btn = suit.Button(text, colors.getButtonOpt(v), suit.layout:col(ButtonWidth, ButtonHeight))
         if btn.hit then
             CurrentMode = v
         end
@@ -181,18 +186,9 @@ end
 
 --Load
 function love.load()
-    -- Initialize ImageData based on DrawMode before calling draw functions
-    if DrawMode == 2 then
-        pixelsPerElement = math.floor(minSize / GridFactor)
-        actualImageSize = pixelsPerElement * GridFactor
-        setPixelImageData = love.image.newImageData(actualImageSize, actualImageSize)
-        setPixelImage = love.graphics.newImage(setPixelImageData)
-        setPixelImage:setFilter("nearest", "nearest")
-    end
-
     sand.generateColorMapSand(Grid, GridFactor)
     plant.generateColorMapPlant(Grid, GridFactor)
-
+    fire.generateColorMapFire(Grid, GridFactor)
     drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
@@ -211,31 +207,37 @@ function love.update(dt)
     if IsPaused then return end
     performance.addEntry(dt)
     ResetMovementGrid()
-    local startValue = direction == -1 and GridFactor - 1 or 1
-    local endValue = direction == -1 and 1 or GridFactor
-    for y = startValue, endValue, direction do
-        local xStart, xEnd, xStep
-        if y % 2 == 0 then
-            xStart, xEnd, xStep = 1, GridFactor, 1
-        else
-            xStart, xEnd, xStep = GridFactor, 1, -1
-        end
+    -- Accumulate time for fixed updates
+    love.accumulatedTime = (love.accumulatedTime or 0) + dt
+    local fixedDt = 1 / 60 -- Target 60 updates per second
+    while love.accumulatedTime >= fixedDt do
+        local startValue = direction == -1 and GridFactor - 1 or 1
+        local endValue = direction == -1 and 1 or GridFactor
+        for y = startValue, endValue, direction do
+            local xStart, xEnd, xStep
+            if y % 2 == 0 then
+                xStart, xEnd, xStep = 1, GridFactor, 1
+            else
+                xStart, xEnd, xStep = GridFactor, 1, -1
+            end
 
-        for x = xStart, xEnd, xStep do
-            local cell = Grid[y] and Grid[y][x]
-            if cell == "sand" then
-                sand.sandCalculation(x, y)
-            elseif cell == "water" then
-                water.waterCalculation(x, y)
-            elseif cell == "plant" then
-                plant.plantCalculation(x, y)
+            for x = xStart, xEnd, xStep do
+                local cell = Grid[y] and Grid[y][x]
+                if cell == "sand" then
+                    sand.sandCalculation(x, y)
+                elseif cell == "water" then
+                    water.waterCalculation(x, y)
+                elseif cell == "plant" then
+                    plant.plantCalculation(x, y)
+                elseif cell == "fire" then
+                    fire.fireCalculation(x, y)
+                end
             end
         end
+        direction = -direction
+        love.accumulatedTime = love.accumulatedTime - fixedDt
     end
-
-    direction = -direction
     if love.mouse.isDown(1) and not ButtonHovered then
-        print(suit:anyHovered())
         drawAtCursor()
     end
     ButtonHovered = false

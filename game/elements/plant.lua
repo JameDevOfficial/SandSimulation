@@ -4,11 +4,11 @@ local colors = require("libs.colors")
 local tempGrid
 local element = "plant"
 local replaceElements = { "water" }
-local replaceChance = 0.1
+local replaceChance = 0.3
 
 local function replaceElement(y,x,replace)
     if replace then
-        Grid[y][x] = "plant"
+        Grid[y][x] = element
     else
         Grid[y][x] = "empty"
     end
