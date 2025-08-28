@@ -37,7 +37,7 @@ Light = love.graphics.newFont("fonts/Rubik-Light.ttf")
 Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
 
 --Config
-DEBUG = true
+DEBUG = false
 GridFactor = 150
 MovedGrid = {}
 
