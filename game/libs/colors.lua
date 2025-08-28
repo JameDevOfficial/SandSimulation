@@ -54,4 +54,6 @@ function M.getButtonOpt(v)
     }
 end
 
+M.GlobalBackgroundColor = {0.1,0.1,0.1}
+
 return M

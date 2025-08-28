@@ -3,32 +3,35 @@ local colors = require("libs.colors")
 
 local tempGrid
 local element = "sand"
-local replaceElements = {"empty", "water"}
+local replaceElements = { "empty", "water" }
 
 function M.sandCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
-
+    --Prioritize falling down
     for i, v in ipairs(replaceElements) do
-
-        if y < GridFactor and Grid[y + 1][x] == v then --sand floating
+        if y < GridFactor and Grid[y + 1][x] == v then
             Grid[y + 1][x] = element
             Grid[y][x] = v
-            MovedGrid[y+1][x] = 1
+            MovedGrid[y + 1][x] = 1
+            NewActiveGrid[NewActiveCount] = { y + 1, x }
+            NewActiveGrid[NewActiveCount] = { y, x }
             return
         end
-
-        if y < GridFactor and Grid[y + 1][x] == element then --double sand stack
-            if x < GridFactor and Grid[y + 1][x + 1] == v then               --diagonal right
+    end
+    --Falling diagonal
+    for i, v in ipairs(replaceElements) do
+        if y < GridFactor and Grid[y + 1][x] == element then
+            if x < GridFactor and Grid[y + 1][x + 1] == v then
                 Grid[y][x] = v
                 Grid[y + 1][x + 1] = element
-                MovedGrid[y+1][x+1] = 1
-                return 
-            elseif x > 1 and Grid[y + 1][x - 1] == v then --diagonal left
+                MovedGrid[y + 1][x + 1] = 1
+                return
+            elseif x > 1 and Grid[y + 1][x - 1] == v then
                 Grid[y][x] = v
                 Grid[y + 1][x - 1] = element
-                MovedGrid[y+1][x-1] = 1
-                return 
+                MovedGrid[y + 1][x - 1] = 1
+                return
             end
         end
     end
@@ -39,7 +42,7 @@ function M.generateColorMapSand(Grid, GridFactor)
     for y = 1, GridFactor do
         tempGrid[y] = {}
         for x = 1, GridFactor do
-            tempGrid[y][x] = colors.setColorInRange({ 230, 200, 103 }, { 250, 220, 123 } )
+            tempGrid[y][x] = colors.setColorInRange({ 230, 200, 103 }, { 250, 220, 123 })
         end
     end
 end

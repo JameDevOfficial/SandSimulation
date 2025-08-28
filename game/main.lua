@@ -15,6 +15,11 @@ Grid = {}
 ButtonRows = 0
 ButtonHovered = false
 
+ActiveGrid = {}
+NewActiveGrid = {}
+ActiveCount = 0
+NewActiveCount = 0
+
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
 Buttons = { "empty", "sand", "water", "wall", "plant", "fire" }
@@ -44,8 +49,8 @@ ButtonPadding = 10
 local screenWidth, screenHeight, minSize
 local padding = 0.
 local waitTime = 0.
-local cursorSize = 15
-local cursorRadius = (cursorSize - 1) / 2
+local cursorSize = 5
+local input = { text = "" }
 
 screenWidth, screenHeight = love.graphics.getDimensions()
 minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
@@ -126,9 +131,12 @@ local function drawAtCursor()
         return
     end
     if not cy and cx then return end
-    for dy = -cursorRadius, cursorRadius do
-        for dx = -cursorRadius, cursorRadius do
-            if (dx + 0.5) ^ 2 + (dy + 0.5) ^ 2 <= cursorRadius * cursorRadius then
+
+    local radius = math.floor(cursorSize / 2)
+    local radiusSquared = radius * radius
+    for dy = -radius, radius do
+        for dx = -radius, radius do
+            if (dx) ^ 2 + (dy) ^ 2 <= radiusSquared then
                 local ny, nx = cy + dy, cx + dx
                 if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                     Grid[ny] = Grid[ny] or {}
@@ -175,12 +183,34 @@ local function drawUi()
         end
     end
 
+    suit.layout:reset((screenWidth - minSize) / 2 + ButtonPadding, 0, ButtonPadding)
+    local btnPlus = suit.Button("+", colors.getButtonOpt(), suit.layout:col(ButtonHeight, ButtonHeight))
+    local cursorSizeLabel = suit.Label(cursorSize, suit.layout:col(ButtonHeight, ButtonHeight))
+    local btnMinus = suit.Button("-", colors.getButtonOpt(), suit.layout:col(ButtonHeight, ButtonHeight))
+    if btnPlus.hit then
+        if cursorSize >= 50 then
+            return
+        end
+        cursorSize = cursorSize + 1
+    end
+    if btnMinus.hit then
+        if cursorSize <= 1 then
+            return
+        end
+        cursorSize = cursorSize - 1
+    end
+    if btnPlus.hovered then
+        ButtonHovered = true
+    end
+    if btnMinus.hovered then
+        ButtonHovered = true
+    end
     --Text Labels
     suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
-    suit.Label(performance.getFPS(), { align = "left" }, suit.layout:row(200, 30))
-    suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
-    suit.Label("Current Mode: " .. CurrentMode, { align = "right" }, suit.layout:row(minSize, 30))
+    suit.layout:reset((screenWidth - minSize) / 2, 0, 0)
+    suit.Label(performance.getFPS(), { align = "right" }, suit.layout:row(minSize, 30))
     if not DEBUG then return end
+    suit.Label("Current Mode: " .. CurrentMode, { align = "left" }, suit.layout:row(minSize, 30))
     suit.Label(debugInfo, { align = "left" }, suit.layout:row())
 end
 
@@ -237,6 +267,8 @@ function love.update(dt)
         direction = -direction
         love.accumulatedTime = love.accumulatedTime - fixedDt
     end
+    ActiveGrid = NewActiveGrid
+    NewActiveGrid = {}
     if love.mouse.isDown(1) and not ButtonHovered then
         drawAtCursor()
     end
@@ -247,6 +279,12 @@ end
 --Keypressed
 function love.keypressed(k)
     debug.keypressed(k, GridFactor, Grid)
+    suit.keypressed(k)
+end
+
+-- forward keyboard events
+function love.textinput(t)
+    suit.textinput(t)
 end
 
 --Resized

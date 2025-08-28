@@ -4,7 +4,7 @@ local colors = require("libs.colors")
 local tempGrid
 local element = "fire"
 local replaceElements = { "plant" }
-local replaceChance = 0.3
+local replaceChance = 0.1
 local vanishChance = 0.1
 
 local function replaceElement(y, x, replace)
