@@ -2,7 +2,7 @@ M = {}
 local colors = require("libs.colors")
 
 local element = "water"
-local replaceElements = { "empty", "fire" }
+local replaceElements = { "empty", "fire", "ash" }
 local tempGrid
 
 function M.waterCalculation(x, y)

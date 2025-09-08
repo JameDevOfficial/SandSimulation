@@ -64,6 +64,12 @@ function M.fireCalculation(x, y)
         MovedGrid[y - 1][x] = 1
     elseif vanish then
         Grid[y][x] = "empty"
+        local spawnAsh = math.random(0,10)
+        if spawnAsh == 0 then
+            if Grid[y+1][x] == "empty" then
+                Grid[y][x] = "ash"
+            end
+        end
     end
     
     MovedGrid[y][x] = 1

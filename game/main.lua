@@ -6,6 +6,7 @@ local sand = require("elements.sand")
 local water = require("elements.water")
 local plant = require("elements.plant")
 local fire = require("elements.fire")
+local ash = require("elements.ash")
 local colors = require("libs.colors")
 
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
@@ -22,14 +23,15 @@ NewActiveCount = 0
 
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall", "plant", "fire" }
+Buttons = { "empty", "sand", "water", "wall", "plant", "fire", "ash" }
 ButtonColors = {
     ["empty"] = { 0.8, 0.8, 0.8 },
     ["sand"] = { 0.9, 0.8, 0.5 },
     ["water"] = { 0.3, 0.6, 0.9 },
     ["wall"] = { 0.5, 0.5, 0.5 },
     ["plant"] = { 0.2, 0.5, 0.2 },
-    ["fire"] = { 0.7, 0.2, 0.2 }
+    ["fire"] = { 0.7, 0.2, 0.2 },
+    ["ash"] = {0.6,0.6,0.6}
 }
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
@@ -97,6 +99,8 @@ local drawGrid = function(emptyAll)
                     color = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
                 elseif Grid[y][x] == "fire" then
                     color = fire.getColorFire(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                elseif Grid[y][x] == "ash" then
+                    color = ash.getColorAsh(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
                 else
                     color = { 1, 1, 1, 1 }
                 end
@@ -219,6 +223,7 @@ function love.load()
     sand.generateColorMapSand(Grid, GridFactor)
     plant.generateColorMapPlant(Grid, GridFactor)
     fire.generateColorMapFire(Grid, GridFactor)
+    ash.generateColorMapAsh(GRid, GridFactor)
     drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
@@ -261,6 +266,8 @@ function love.update(dt)
                     plant.plantCalculation(x, y)
                 elseif cell == "fire" then
                     fire.fireCalculation(x, y)
+                elseif cell == "ash" then
+                    ash.ashCalculation(x, y)
                 end
             end
         end
