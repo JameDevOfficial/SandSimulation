@@ -2,11 +2,15 @@ local lib = require("libs.lib")
 local debug = require("libs.debug")
 local performance = require("libs.performance")
 local suit = require("libs.suit")
-local sand = require("elements.sand")
-local water = require("elements.water")
-local plant = require("elements.plant")
-local fire = require("elements.fire")
-local ash = require("elements.ash")
+local elements = {
+    sand = require("elements.sand"),
+    water = require("elements.water"),
+    plant = require("elements.plant"),
+    fire = require("elements.fire"),
+    ash = require("elements.ash"),
+    dust = require("elements.dust"),
+    -- Add new elements here
+}
 local colors = require("libs.colors")
 
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
@@ -23,7 +27,7 @@ NewActiveCount = 0
 
 BLACK = { 0, 0, 0, 1 }
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall", "plant", "fire", "ash" }
+Buttons = { "empty", "sand", "water", "wall", "plant", "fire", "ash", "dust" }
 ButtonColors = {
     ["empty"] = { 0.8, 0.8, 0.8 },
     ["sand"] = { 0.9, 0.8, 0.5 },
@@ -31,7 +35,8 @@ ButtonColors = {
     ["wall"] = { 0.5, 0.5, 0.5 },
     ["plant"] = { 0.2, 0.5, 0.2 },
     ["fire"] = { 0.7, 0.2, 0.2 },
-    ["ash"] = {0.6,0.6,0.6}
+    ["ash"] = { 0.6, 0.6, 0.6 },
+    ["dust"] = { 240 / 255, 155 / 255, 250 / 255 },
 }
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
@@ -90,17 +95,19 @@ local drawGrid = function(emptyAll)
                 -- Experimental rendering inspired by https://github.com/KINGTUT10101/PixelRenderingComparison
                 local color
                 if Grid[y][x] == "sand" then
-                    color = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
+                    color = elements.sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
                 elseif Grid[y][x] == "water" then
                     color = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
                 elseif Grid[y][x] == "wall" then
                     color = { 199 / 255, 200 / 255, 201 / 255, 1 }
                 elseif Grid[y][x] == "plant" then
-                    color = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                    color = elements.plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
                 elseif Grid[y][x] == "fire" then
-                    color = fire.getColorFire(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                    color = elements.fire.getColorFire(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
                 elseif Grid[y][x] == "ash" then
-                    color = ash.getColorAsh(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                    color = elements.ash.getColorAsh(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
+                elseif Grid[y][x] == "dust" then
+                    color = elements.dust.getColorDust(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
                 else
                     color = { 1, 1, 1, 1 }
                 end
@@ -177,7 +184,7 @@ local function drawUi()
         end
         buttonCount = buttonCount + 1
         local text = v
-        text = v:sub(1,1):upper() .. v:sub(2)
+        text = v:sub(1, 1):upper() .. v:sub(2)
         local btn = suit.Button(text, colors.getButtonOpt(v), suit.layout:col(ButtonWidth, ButtonHeight))
         if btn.hit then
             CurrentMode = v
@@ -220,10 +227,11 @@ end
 
 --Load
 function love.load()
-    sand.generateColorMapSand(Grid, GridFactor)
-    plant.generateColorMapPlant(Grid, GridFactor)
-    fire.generateColorMapFire(Grid, GridFactor)
-    ash.generateColorMapAsh(GRid, GridFactor)
+    elements.sand.generateColorMapSand(Grid, GridFactor)
+    elements.plant.generateColorMapPlant(Grid, GridFactor)
+    elements.fire.generateColorMapFire(Grid, GridFactor)
+    elements.ash.generateColorMapAsh(Grid, GridFactor)
+    elements.dust.generateColorMapDust(Grid, GridFactor)
     drawGrid(true)
     love.graphics.setFont(Regular)
     suit.theme.color.normal.fg = { 0, 0, 0 }
@@ -259,15 +267,17 @@ function love.update(dt)
             for x = xStart, xEnd, xStep do
                 local cell = Grid[y] and Grid[y][x]
                 if cell == "sand" then
-                    sand.sandCalculation(x, y)
+                    elements.sand.sandCalculation(x, y)
                 elseif cell == "water" then
-                    water.waterCalculation(x, y)
+                    elements.water.waterCalculation(x, y)
                 elseif cell == "plant" then
-                    plant.plantCalculation(x, y)
-                elseif cell == "fire" then
-                    fire.fireCalculation(x, y)
+                    elements.plant.plantCalculation(x, y)
                 elseif cell == "ash" then
-                    ash.ashCalculation(x, y)
+                    elements.ash.ashCalculation(x, y)
+                elseif cell == "dust" then
+                    elements.dust.dustCalculation(x, y)
+                elseif cell == "fire" then
+                    elements.fire.fireCalculation(x, y)
                 end
             end
         end
