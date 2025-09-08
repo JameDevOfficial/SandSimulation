@@ -3,13 +3,12 @@ local colors = require("libs.colors")
 
 local tempGrid
 local element = "sand"
-local replaceElements = { "empty", "water" }
 
 function M.sandCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
     --Prioritize falling down
-    for i, v in ipairs(replaceElements) do
+    for i, v in ipairs(Data[element].replaceElements) do
         if y < GridFactor and Grid[y + 1][x] == v then
             Grid[y + 1][x] = element
             Grid[y][x] = v
@@ -20,7 +19,7 @@ function M.sandCalculation(x, y)
         end
     end
     --Falling diagonal
-    for i, v in ipairs(replaceElements) do
+    for i, v in ipairs(Data[element].replaceElements) do
         if y < GridFactor and Grid[y + 1][x] == element then
             if x < GridFactor and Grid[y + 1][x + 1] == v then
                 Grid[y][x] = v
@@ -38,6 +37,7 @@ function M.sandCalculation(x, y)
 end
 
 function M.generateColorMapSand(Grid, GridFactor)
+    print("Test")
     tempGrid = {}
     for y = 1, GridFactor do
         tempGrid[y] = {}
@@ -45,6 +45,8 @@ function M.generateColorMapSand(Grid, GridFactor)
             tempGrid[y][x] = colors.setColorInRange({ 230, 200, 103 }, { 250, 220, 123 })
         end
     end
+    print("generated generateColorMapSand 1")
+    return 1
 end
 
 function M.getColorSand(x, y)

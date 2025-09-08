@@ -3,13 +3,12 @@ local colors = require("libs.colors")
 
 local tempGrid
 local element = "dust"
-local replaceElements = { "empty" }
 
 function M.dustCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
     --Prioritize falling down
-    for i, v in ipairs(replaceElements) do
+    for i, v in ipairs(Data[element].replaceElements) do
         if y < GridFactor and Grid[y + 1][x] == v then
             Grid[y + 1][x] = element
             Grid[y][x] = v
@@ -20,7 +19,7 @@ function M.dustCalculation(x, y)
         end
     end
     --Falling diagonal
-    for i, v in ipairs(replaceElements) do
+    for i, v in ipairs(Data[element].replaceElements) do
         if y < GridFactor and Grid[y + 1][x] == element then
             if x < GridFactor and Grid[y + 1][x + 1] == v then
                 Grid[y][x] = v

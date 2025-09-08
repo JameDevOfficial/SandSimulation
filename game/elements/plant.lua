@@ -3,8 +3,6 @@ local colors = require("libs.colors")
 
 local tempGrid
 local element = "plant"
-local replaceElements = { "water" }
-local replaceChance = 0.3
 
 local function replaceElement(y,x,replace)
     if replace then
@@ -17,8 +15,8 @@ end
 function M.plantCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
-    local replace = math.random() <= replaceChance and true or false
-    for _, v in ipairs(replaceElements) do
+    local replace = math.random() <= Data[element].replaceChance and true or false
+    for _, v in ipairs(Data[element].replaceElements) do
         -- above
         if y > 1 and Grid[y - 1][x] == v then
             replaceElement(y - 1, x, replace)

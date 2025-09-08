@@ -48,18 +48,7 @@ local lastPressedDebugInfo = nil
 local amountPressedDebugInfo = 0
 
 function M.keypressed(k, gridFactor, grid)
-    if k == 'f5' then
-        saveGrid(gridFactor, grid)
-    elseif k == 'f6' then
-        pauseGame()
-        print("Game paused:", IsPaused)
-    elseif k == 'f7' then
-        local avg = performance.getAvg()
-        performance.saveToFile()
-        performance.clearEntries()
-        print("Avg: "..avg)
-        print("Performance entries saved and cleared.")
-    elseif k == 'f8' then
+    if k == 'f8' then
         if amountPressedDebugInfo >= 5 then
             DEBUG = not DEBUG
             amountPressedDebugInfo = 0
@@ -75,6 +64,21 @@ function M.keypressed(k, gridFactor, grid)
             amountPressedDebugInfo = 1
             lastPressedDebugInfo = os.time()
         end
+    end
+
+    if not DEBUG then return end
+    if k == 'f5' then
+        
+        saveGrid(gridFactor, grid)
+    elseif k == 'f6' then
+        pauseGame()
+        print("Game paused:", IsPaused)
+    elseif k == 'f7' then
+        local avg = performance.getAvg()
+        performance.saveToFile()
+        performance.clearEntries()
+        print("Avg: "..avg)
+        print("Performance entries saved and cleared.")
     end
 end
 

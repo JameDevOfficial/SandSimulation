@@ -3,29 +3,23 @@ local colors = require("libs.colors")
 
 local tempGrid
 local element = "fire"
-local replaceElementsNames = { "plant", "dust" }
-local replaceChances = {
-    ["plant"] = 0.1,
-    ["dust"] = 1,
-}
 local vanishChance = 0.2
 
-local function replaceElement(y, x, replace, element)
+local function replaceElement(y, x, replace, oldElement)
     if replace then
-        Grid[y][x] = "fire"
-    else
         Grid[y][x] = element
+    else
+        Grid[y][x] = oldElement
     end
 end
 
 function M.fireCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
-    for i, v in ipairs(replaceElementsNames) do
+    for i, v in ipairs(Data[element].replaceElements) do
         local replaceRandom = math.random()
         local vanishRandom = math.random()
-
-        local replace = replaceRandom <= replaceChances[v]
+        local replace = replaceRandom <= Data[v].burnChance
 
         local neighbors = {}
         for dy = -1, 1 do
