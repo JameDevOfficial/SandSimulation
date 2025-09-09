@@ -1,12 +1,20 @@
-local lib = require("libs.lib")
-local debug = require("libs.debug")
-local performance = require("libs.performance")
-local suit = require("libs.suit")
-local sand = require("elements.sand")
-local water = require("elements.water")
-local plant = require("elements.plant")
-local fire = require("elements.fire")
-local colors = require("libs.colors")
+Lib = require("libs.lib")
+Debug = require("libs.debug")
+Performance = require("libs.performance")
+Suit = require("libs.suit")
+Colors = require("libs.colors")
+Data = require("libs.data")
+--Adding new Elements:
+Elements = {
+    sand = require("elements.sand"),
+    water = require("elements.water"),
+    plant = require("elements.plant"),
+    fire = require("elements.fire"),
+    ash = require("elements.ash"),
+    dust = require("elements.dust"),
+    oil = require("elements.oil"),
+    -- Add new elements here
+}
 
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
@@ -15,24 +23,20 @@ Grid = {}
 ButtonRows = 0
 ButtonHovered = false
 
-BLACK = { 0, 0, 0, 1 }
+ActiveGrid = {}
+NewActiveGrid = {}
+ActiveCount = 0
+NewActiveCount = 0
 CurrentMode = "sand"
-Buttons = { "empty", "sand", "water", "wall", "plant", "fire" }
-ButtonColors = {
-    ["empty"] = { 0.8, 0.8, 0.8 },
-    ["sand"] = { 0.9, 0.8, 0.5 },
-    ["water"] = { 0.3, 0.6, 0.9 },
-    ["wall"] = { 0.5, 0.5, 0.5 },
-    ["plant"] = { 0.2, 0.5, 0.2 },
-    ["fire"] = { 0.7, 0.2, 0.2 }
-}
+
+BLACK = { 0, 0, 0, 1 }
 Regular = love.graphics.newFont("fonts/Rubik-Regular.ttf")
 Medium = love.graphics.newFont("fonts/Rubik-Medium.ttf")
 Light = love.graphics.newFont("fonts/Rubik-Light.ttf")
 Bold = love.graphics.newFont("fonts/Rubik-Bold.ttf")
 
 --Config
-DEBUG = true
+DEBUG = false
 GridFactor = 150
 MovedGrid = {}
 
@@ -44,8 +48,8 @@ ButtonPadding = 10
 local screenWidth, screenHeight, minSize
 local padding = 0.
 local waitTime = 0.
-local cursorSize = 15
-local cursorRadius = (cursorSize - 1) / 2
+local cursorSize = 5
+local input = { text = "" }
 
 screenWidth, screenHeight = love.graphics.getDimensions()
 minSize = (screenHeight < screenWidth) and screenHeight or screenWidth
@@ -70,7 +74,6 @@ local elementPixels = minSize / GridFactor
 local actualImageSize, pixelsPerElement
 
 setPixelImage:setFilter("nearest", "nearest")
-print(elementPixels, minSize, GridFactor)
 
 local drawGrid = function(emptyAll)
     for y = 1, GridFactor do
@@ -81,21 +84,14 @@ local drawGrid = function(emptyAll)
             else
                 Grid[y][x] = Grid[y][x] or "empty"
                 -- Experimental rendering inspired by https://github.com/KINGTUT10101/PixelRenderingComparison
-                local color
-                if Grid[y][x] == "sand" then
-                    color = sand.getColorSand(x, y) or { 194 / 255, 178 / 255, 128 / 255, 1 }
-                elseif Grid[y][x] == "water" then
-                    color = colors.setColorInRange({ 84, 151, 235 }, { 104, 171, 255 })
-                elseif Grid[y][x] == "wall" then
-                    color = { 199 / 255, 200 / 255, 201 / 255, 1 }
-                elseif Grid[y][x] == "plant" then
-                    color = plant.getColorPlant(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
-                elseif Grid[y][x] == "fire" then
-                    color = fire.getColorFire(x, y) or { 24 / 255, 163 / 255, 8 / 255, 1 }
-                else
-                    color = { 1, 1, 1, 1 }
+                local cElement = Grid[y][x]
+                local color = Data[cElement].color
+                if type(color) == "function" then
+                    color = color(x, y)
                 end
-
+                if color[1] > 1 or color[2] > 1 or color[3] > 1 then
+                    color = { color[1] / 255, color[2] / 255, color[3] / 255 }
+                end
                 setPixelImageData:setPixel(x - 1, y - 1, color[1], color[2], color[3], color[4] or 1)
             end
         end
@@ -126,9 +122,12 @@ local function drawAtCursor()
         return
     end
     if not cy and cx then return end
-    for dy = -cursorRadius, cursorRadius do
-        for dx = -cursorRadius, cursorRadius do
-            if (dx + 0.5) ^ 2 + (dy + 0.5) ^ 2 <= cursorRadius * cursorRadius then
+
+    local radius = math.floor(cursorSize / 2)
+    local radiusSquared = radius * radius
+    for dy = -radius, radius do
+        for dx = -radius, radius do
+            if (dx) ^ 2 + (dy) ^ 2 <= radiusSquared then
                 local ny, nx = cy + dy, cx + dx
                 if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                     Grid[ny] = Grid[ny] or {}
@@ -146,27 +145,47 @@ local function drawUi()
     local buttonsPerRow = math.floor((availableWidth + ButtonPadding) / (ButtonWidth + ButtonPadding))
     if buttonsPerRow < 1 then buttonsPerRow = 1 end
 
-    --Element Buttons
+    -- Get and sort element keys
+    local elementKeys = {}
+    for k in pairs(Data) do
+        table.insert(elementKeys, k)
+    end
+    table.sort(elementKeys, function(a, b)
+        if a == "empty" then
+            return true
+        elseif b == "empty" then
+            return false
+        elseif a == "wall" then
+            return true
+        elseif b == "wall" then
+            return false
+        else
+            return a < b
+        end
+    end)
+
     local buttonCount = 0
     ButtonRows = 0
 
-    suit.layout:reset(
+    Suit.layout:reset(
         ((screenWidth - minSize) / 2) +
         ((minSize - (buttonsPerRow * ButtonWidth + (buttonsPerRow - 1) * ButtonPadding)) / 2),
         0, ButtonPadding)
 
-    for i, v in ipairs(Buttons) do
+    for _, v in ipairs(elementKeys) do
         if buttonCount > 0 and buttonCount % buttonsPerRow == 0 then
             ButtonRows = ButtonRows + 1
-            suit.layout:reset(
+            Suit.layout:reset(
                 ((screenWidth - minSize) / 2) +
                 ((minSize - (buttonsPerRow * ButtonWidth + (buttonsPerRow - 1) * ButtonPadding)) / 2),
                 ButtonRows * (ButtonHeight + ButtonPadding), ButtonPadding)
         end
         buttonCount = buttonCount + 1
-        local text = v
-        text = v:sub(1,1):upper() .. v:sub(2)
-        local btn = suit.Button(text, colors.getButtonOpt(v), suit.layout:col(ButtonWidth, ButtonHeight))
+        local textColor = Data[v].textColor or { 0, 0, 0 }
+        local text = v:sub(1, 1):upper() .. v:sub(2)
+        local x, y, w, h = Suit.layout:col(ButtonWidth, ButtonHeight)
+        local btn = Suit.Button(text, Colors.getButtonOpt(v, nil, textColor), x, y, w, h)
+
         if btn.hit then
             CurrentMode = v
         end
@@ -175,37 +194,64 @@ local function drawUi()
         end
     end
 
+    Suit.layout:reset((screenWidth - minSize) / 2 + ButtonPadding, 0, ButtonPadding)
+    local btnPlus = Suit.Button("+", Colors.getButtonOpt(nil, { 128, 128, 128 }),
+        Suit.layout:col(ButtonHeight, ButtonHeight))
+    local cursorSizeLabel = Suit.Label(cursorSize, Suit.layout:col(ButtonHeight, ButtonHeight))
+    local btnMinus = Suit.Button("-", Colors.getButtonOpt(nil, { 128, 128, 128 }),
+        Suit.layout:col(ButtonHeight, ButtonHeight))
+    if btnPlus.hit then
+        if cursorSize >= 50 then
+            return
+        end
+        cursorSize = cursorSize + 1
+    end
+    if btnMinus.hit then
+        if cursorSize <= 1 then
+            return
+        end
+        cursorSize = cursorSize - 1
+    end
+    if btnPlus.hovered then
+        ButtonHovered = true
+    end
+    if btnMinus.hovered then
+        ButtonHovered = true
+    end
     --Text Labels
-    suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
-    suit.Label(performance.getFPS(), { align = "left" }, suit.layout:row(200, 30))
-    suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
-    suit.Label("Current Mode: " .. CurrentMode, { align = "right" }, suit.layout:row(minSize, 30))
+    Suit.layout:reset((screenWidth - minSize) / 2, 0, ButtonPadding)
+    Suit.layout:reset((screenWidth - minSize) / 2, 0, 0)
+    Suit.Label(Performance.getFPS(), { align = "right" }, Suit.layout:row(minSize, 30))
     if not DEBUG then return end
-    suit.Label(debugInfo, { align = "left" }, suit.layout:row())
+    Suit.Label("Current Mode: " .. CurrentMode, { align = "left" }, Suit.layout:row(minSize, 30))
+    Suit.Label(debugInfo, { align = "left" }, Suit.layout:row())
 end
 
 --Load
 function love.load()
-    sand.generateColorMapSand(Grid, GridFactor)
-    plant.generateColorMapPlant(Grid, GridFactor)
-    fire.generateColorMapFire(Grid, GridFactor)
+    for name, mod in pairs(Elements) do
+        if Data[name].hasColorMap and mod["generateColorMap" .. name:sub(1, 1):upper() .. name:sub(2)] then
+            mod["generateColorMap" .. name:sub(1, 1):upper() .. name:sub(2)](Grid, GridFactor)
+        end
+    end
+
     drawGrid(true)
     love.graphics.setFont(Regular)
-    suit.theme.color.normal.fg = { 0, 0, 0 }
+    Suit.theme.color.normal.fg = { 0, 0, 0 }
 end
 
 --Draw
 function love.draw()
     drawGrid()
     drawUi()
-    suit.draw()
+    Suit.draw()
 end
 
 --Update
 local direction = -1
 function love.update(dt)
     if IsPaused then return end
-    performance.addEntry(dt)
+    Performance.addEntry(dt)
     ResetMovementGrid()
     -- Accumulate time for fixed updates
     love.accumulatedTime = (love.accumulatedTime or 0) + dt
@@ -223,30 +269,33 @@ function love.update(dt)
 
             for x = xStart, xEnd, xStep do
                 local cell = Grid[y] and Grid[y][x]
-                if cell == "sand" then
-                    sand.sandCalculation(x, y)
-                elseif cell == "water" then
-                    water.waterCalculation(x, y)
-                elseif cell == "plant" then
-                    plant.plantCalculation(x, y)
-                elseif cell == "fire" then
-                    fire.fireCalculation(x, y)
+                local mod = Elements[cell]
+                if mod and mod[cell .. "Calculation"] then
+                    mod[cell .. "Calculation"](x, y)
                 end
             end
         end
         direction = -direction
         love.accumulatedTime = love.accumulatedTime - fixedDt
     end
+    ActiveGrid = NewActiveGrid
+    NewActiveGrid = {}
     if love.mouse.isDown(1) and not ButtonHovered then
         drawAtCursor()
     end
     ButtonHovered = false
-    lib.wait(waitTime)
+    Lib.wait(waitTime)
 end
 
 --Keypressed
 function love.keypressed(k)
-    debug.keypressed(k, GridFactor, Grid)
+    Debug.keypressed(k, GridFactor, Grid)
+    Suit.keypressed(k)
+end
+
+-- forward keyboard events
+function love.textinput(t)
+    Suit.textinput(t)
 end
 
 --Resized

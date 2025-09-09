@@ -2,9 +2,9 @@ M = {}
 local colors = require("libs.colors")
 
 local tempGrid
-local element = "sand"
+local element = "dust"
 
-function M.sandCalculation(x, y)
+function M.dustCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
     --Prioritize falling down
@@ -36,18 +36,17 @@ function M.sandCalculation(x, y)
     end
 end
 
-function M.generateColorMapSand(Grid, GridFactor)
+function M.generateColorMapDust(Grid, GridFactor)
     tempGrid = {}
     for y = 1, GridFactor do
         tempGrid[y] = {}
         for x = 1, GridFactor do
-            tempGrid[y][x] = colors.setColorInRange({ 230, 200, 103 }, { 250, 220, 123 })
+            tempGrid[y][x] = colors.setColorInRange({ 240, 155, 250 }, { 255, 145, 135 })
         end
     end
-    return 1
 end
 
-function M.getColorSand(x, y)
+function M.getColorDust(x, y)
     if tempGrid and tempGrid[y] then
         return tempGrid[y][x]
     end

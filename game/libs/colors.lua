@@ -14,24 +14,32 @@ function M.setColorInRange(color1, color2)
     return { r / 255, g / 255, b / 255 }
 end
 
-function M.getButtonOpt(v)
+local function normalizeColor(color)
+    if color[1] <= 1 and color[2] <= 1 and color[3] <= 1 then
+        return color
+    end
+    return { color[1] / 255, color[2] / 255, color[3] / 255 }
+end
+
+function M.getButtonOpt(v, baseColor, textColor)
     return {
         draw = function(text, opt, x, y, w, h)
             local radius = 8
-            local baseColor = ButtonColors[v] or { 0.5, 0.5, 0.5 }
-            local buttonColor = baseColor
+            baseColor = baseColor or
+                (type(Data[v].buttonColor) == "function" and Data[v].buttonColor(x, y) or Data[v].buttonColor)
+            local buttonColor = normalizeColor(baseColor)
 
             if opt.state == "hovered" then
                 buttonColor = {
-                    math.min(baseColor[1] + 0.15, 1),
-                    math.min(baseColor[2] + 0.15, 1),
-                    math.min(baseColor[3] + 0.15, 1)
+                    math.min(buttonColor[1] + 0.15, 1),
+                    math.min(buttonColor[2] + 0.15, 1),
+                    math.min(buttonColor[3] + 0.15, 1)
                 }
             else
                 buttonColor = {
-                    math.min(baseColor[1] + 0.15, 1),
-                    math.min(baseColor[2] + 0.15, 1),
-                    math.min(baseColor[3] + 0.15, 1)
+                    math.min(buttonColor[1] + 0.15, 1),
+                    math.min(buttonColor[2] + 0.15, 1),
+                    math.min(buttonColor[3] + 0.15, 1)
                 }
             end
 
@@ -45,7 +53,10 @@ function M.getButtonOpt(v)
             end
 
             -- Draw button text
-            love.graphics.setColor(0, 0, 0) -- Black text
+            textColor = textColor or {0, 0, 0}
+
+            textColor = {textColor[1]/255, textColor[2]/255, textColor[3]/255}
+            love.graphics.setColor(textColor) -- Black text
             local font = love.graphics.getFont()
             local textW = font:getWidth(text)
             local textH = font:getHeight()
@@ -53,5 +64,7 @@ function M.getButtonOpt(v)
         end,
     }
 end
+
+M.GlobalBackgroundColor = { 0.1, 0.1, 0.1 }
 
 return M

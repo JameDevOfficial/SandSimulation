@@ -1,9 +1,9 @@
 M = {}
 local colors = require("libs.colors")
 
-local element = "water"
+local element = "oil"
 
-function M.waterCalculation(x, y)
+function M.oilCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
     local canMoveDownLeft
@@ -19,7 +19,7 @@ function M.waterCalculation(x, y)
             end
             canMoveDownLeft = y < GridFactor and x > 1 and (Grid[y + 1][x - 1] == v)
             canMoveDownRight = y < GridFactor and x < GridFactor and (Grid[y + 1][x + 1] == v)
-        end     
+        end
     end
 
 
@@ -49,8 +49,8 @@ function M.waterCalculation(x, y)
     local canMoveRight
     local canMoveLeft
     for i, v in ipairs(Data[element].replaceElements) do
-        canMoveLeft = x > 1 and (Grid[y][x - 1] == "empty" or Grid[y][x - 1] == "fire")
-        canMoveRight = x < GridFactor and (Grid[y][x + 1] == "empty" or Grid[y][x + 1] == "fire")
+        canMoveLeft = x > 1 and (Grid[y][x - 1] == "empty")
+        canMoveRight = x < GridFactor and (Grid[y][x + 1] == "empty")
     end
 
     if canMoveLeft and canMoveRight then
