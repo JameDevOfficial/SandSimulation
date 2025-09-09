@@ -21,7 +21,7 @@ local function normalizeColor(color)
     return { color[1] / 255, color[2] / 255, color[3] / 255 }
 end
 
-function M.getButtonOpt(v, baseColor)
+function M.getButtonOpt(v, baseColor, textColor)
     return {
         draw = function(text, opt, x, y, w, h)
             local radius = 8
@@ -53,7 +53,10 @@ function M.getButtonOpt(v, baseColor)
             end
 
             -- Draw button text
-            love.graphics.setColor(0, 0, 0) -- Black text
+            textColor = textColor or {0, 0, 0}
+
+            textColor = {textColor[1]/255, textColor[2]/255, textColor[3]/255}
+            love.graphics.setColor(textColor) -- Black text
             local font = love.graphics.getFont()
             local textW = font:getWidth(text)
             local textH = font:getHeight()

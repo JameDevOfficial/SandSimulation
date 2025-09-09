@@ -3,7 +3,7 @@ Debug = require("libs.debug")
 Performance = require("libs.performance")
 Suit = require("libs.suit")
 Colors = require("libs.colors")
-
+Data = require("libs.data")
 --Adding new Elements:
 Elements = {
     sand = require("elements.sand"),
@@ -12,9 +12,9 @@ Elements = {
     fire = require("elements.fire"),
     ash = require("elements.ash"),
     dust = require("elements.dust"),
+    oil = require("elements.oil"),
     -- Add new elements here
 }
-Data = require("elements.data")
 
 local debugInfo = "[F5] - Save Grid\n[F6] - Pause/Play\n[F7] - Save Avg DT\n"
 
@@ -74,7 +74,6 @@ local elementPixels = minSize / GridFactor
 local actualImageSize, pixelsPerElement
 
 setPixelImage:setFilter("nearest", "nearest")
-print(elementPixels, minSize, GridFactor)
 
 local drawGrid = function(emptyAll)
     for y = 1, GridFactor do
@@ -146,7 +145,25 @@ local function drawUi()
     local buttonsPerRow = math.floor((availableWidth + ButtonPadding) / (ButtonWidth + ButtonPadding))
     if buttonsPerRow < 1 then buttonsPerRow = 1 end
 
-    --Element Buttons
+    -- Get and sort element keys
+    local elementKeys = {}
+    for k in pairs(Data) do
+        table.insert(elementKeys, k)
+    end
+    table.sort(elementKeys, function(a, b)
+        if a == "empty" then
+            return true
+        elseif b == "empty" then
+            return false
+        elseif a == "wall" then
+            return true
+        elseif b == "wall" then
+            return false
+        else
+            return a < b
+        end
+    end)
+
     local buttonCount = 0
     ButtonRows = 0
 
@@ -155,7 +172,7 @@ local function drawUi()
         ((minSize - (buttonsPerRow * ButtonWidth + (buttonsPerRow - 1) * ButtonPadding)) / 2),
         0, ButtonPadding)
 
-    for v, color in pairs(Data) do
+    for _, v in ipairs(elementKeys) do
         if buttonCount > 0 and buttonCount % buttonsPerRow == 0 then
             ButtonRows = ButtonRows + 1
             Suit.layout:reset(
@@ -164,8 +181,11 @@ local function drawUi()
                 ButtonRows * (ButtonHeight + ButtonPadding), ButtonPadding)
         end
         buttonCount = buttonCount + 1
+        local textColor = Data[v].textColor or { 0, 0, 0 }
         local text = v:sub(1, 1):upper() .. v:sub(2)
-        local btn = Suit.Button(text, Colors.getButtonOpt(v), Suit.layout:col(ButtonWidth, ButtonHeight))
+        local x, y, w, h = Suit.layout:col(ButtonWidth, ButtonHeight)
+        local btn = Suit.Button(text, Colors.getButtonOpt(v, nil, textColor), x, y, w, h)
+
         if btn.hit then
             CurrentMode = v
         end

@@ -8,6 +8,12 @@ local vanishChance = 0.2
 local function replaceElement(y, x, replace, oldElement)
     if replace then
         Grid[y][x] = element
+        local spawnAsh = math.random(0,5)
+        if spawnAsh == 0 then
+            if y < GridFactor then
+                Grid[y][x] = "ash"
+            end
+        end
     else
         Grid[y][x] = oldElement
     end
@@ -17,29 +23,22 @@ function M.fireCalculation(x, y)
     if Grid[y][x] ~= element then return end
     if MovedGrid[y][x] == 1 then return end
     for i, v in ipairs(Data[element].replaceElements) do
-        local replaceRandom = math.random()
         local vanishRandom = math.random()
-        local replace = replaceRandom <= Data[v].burnChance
 
-        local neighbors = {}
         for dy = -1, 1 do
             for dx = -1, 1 do
                 if not (dy == 0 and dx == 0) then
                     local ny, nx = y + dy, x + dx
                     if ny >= 1 and ny <= GridFactor and nx >= 1 and nx <= GridFactor then
                         if Grid[ny][nx] == v then
-                            table.insert(neighbors, { ny, nx })
+                            local replaceRandom = math.random()
+                            local replace = replaceRandom <= Data[v].burnChance
+                            replaceElement(ny, nx, replace, v)
+                            MovedGrid[ny][nx] = 1
                         end
                     end
                 end
             end
-        end
-
-        if #neighbors > 0 then
-            local targetNeighbor = neighbors[math.random(1, #neighbors)]
-            replaceElement(targetNeighbor[1], targetNeighbor[2], replace, v)
-            MovedGrid[y][x] = 1
-            return
         end
 
         local vanish = vanishRandom <= vanishChance
@@ -49,12 +48,7 @@ function M.fireCalculation(x, y)
             MovedGrid[y - 1][x] = 1
         elseif vanish then
             Grid[y][x] = "empty"
-            local spawnAsh = math.random(0, 10)
-            if spawnAsh == 0 then
-                if y < GridFactor and Grid[y + 1][x] == "empty" then
-                    Grid[y][x] = "ash"
-                end
-            end
+
         end
 
         MovedGrid[y][x] = 1

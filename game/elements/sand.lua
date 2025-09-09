@@ -37,7 +37,6 @@ function M.sandCalculation(x, y)
 end
 
 function M.generateColorMapSand(Grid, GridFactor)
-    print("Test")
     tempGrid = {}
     for y = 1, GridFactor do
         tempGrid[y] = {}
@@ -45,7 +44,6 @@ function M.generateColorMapSand(Grid, GridFactor)
             tempGrid[y][x] = colors.setColorInRange({ 230, 200, 103 }, { 250, 220, 123 })
         end
     end
-    print("generated generateColorMapSand 1")
     return 1
 end
 
