@@ -77,13 +77,12 @@ def main():
         web_win = str(web).replace('/mnt/c/', 'C:\\').replace('/', '\\')
         lovejs_cmd = f"npx love.js.cmd -c \"{love_file_win}\" \"{web_win}\" --title \"Sand Simulation\""
     else:
-        lovejs_cmd = f"npx love.js -c \"{love_file}\" \"{web}\" --title \"Sand Simulation\""
+        lovejs_cmd = f"npx love.js.cmd -c \"{love_file}\" \"{web}\" --title \"Sand Simulation\""
     
     run(lovejs_cmd)
 
     # Cleanup
-    if love_file.exists():
-        love_file.unlink()
+
 
     # Step 6: Build summary
     print("\nBuild Summary:\n===============")

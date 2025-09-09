@@ -41,7 +41,7 @@ function M.generateColorMapDust(Grid, GridFactor)
     for y = 1, GridFactor do
         tempGrid[y] = {}
         for x = 1, GridFactor do
-            tempGrid[y][x] = colors.setColorInRange({ 240, 155, 250 }, { 255, 145, 135 })
+            tempGrid[y][x] = colors.setColorInRange({ 240, 145, 135 }, { 255, 155, 250 })
         end
     end
 end
