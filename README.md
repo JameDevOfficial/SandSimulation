@@ -2,7 +2,7 @@
 A simple sand (and more elements) simulation built with Lua and LÖVE2D.
 
 ## Features
-- Place and simulate sand, water, plant and wall
+- Place and simulate sand, water, plant, wall and more elements
   
 ## Requirements (playing)
 ### Web & PC
